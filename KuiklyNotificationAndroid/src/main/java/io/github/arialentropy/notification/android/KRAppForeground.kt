@@ -1,43 +1,26 @@
 package io.github.arialentropy.notification.android
 
-import android.app.Activity
-import android.app.Application
 import android.content.Context
-import android.os.Bundle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ProcessLifecycleOwner
 
 /**
- * 轻量前后台判断（避免额外依赖 lifecycle-process）。
+ * 前后台判断。
  *
- * 通过 Application 的 Activity 生命周期回调统计处于 started 状态的 Activity 数量。
+ * 使用 [ProcessLifecycleOwner]，它在 App 启动时由 lifecycle-process 自动注册并已同步当前状态，
+ * 不存在“懒注册导致首次判断错误”的问题。
  */
 internal object KRAppForeground {
 
-    private var startedCount = 0
-    private var registered = false
-
-    val isForeground: Boolean get() = startedCount > 0
-
+    /** 兼容旧调用点；ProcessLifecycleOwner 无需手动注册 */
     fun ensureRegistered(context: Context) {
-        if (registered) return
-        val application = context.applicationContext as? Application ?: return
-        synchronized(this) {
-            if (registered) return
-            application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
-                override fun onActivityStarted(activity: Activity) {
-                    startedCount++
-                }
-
-                override fun onActivityStopped(activity: Activity) {
-                    if (startedCount > 0) startedCount--
-                }
-
-                override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
-                override fun onActivityResumed(activity: Activity) = Unit
-                override fun onActivityPaused(activity: Activity) = Unit
-                override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
-                override fun onActivityDestroyed(activity: Activity) = Unit
-            })
-            registered = true
-        }
+        // no-op
     }
+
+    val isForeground: Boolean
+        get() = try {
+            ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        } catch (t: Throwable) {
+            false
+        }
 }

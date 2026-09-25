@@ -133,6 +133,27 @@ internal class NotificationDemoPage : BasePager() {
                     }
                 }
 
+                demoButton("8. 创建高优先级渠道 high") {
+                    ctx.notification.createChannel("high", "高优先级", NotificationConst.Importance.HIGH) { result ->
+                        ctx.appendLog("createChannel: code=${result.code}")
+                    }
+                }
+
+                demoButton("9. 3 秒后横幅通知（high 渠道）") {
+                    val request = NotificationRequest(
+                        id = 10,
+                        title = "横幅通知",
+                        body = "IMPORTANCE_HIGH 才会出横幅",
+                        channelId = "high",
+                        payload = "banner_payload",
+                        showWhenInForeground = true
+                    )
+                    val triggerAt = DateTime.currentTimestamp() + 3_000L
+                    ctx.notification.scheduleAt(request, triggerAt) { result ->
+                        ctx.appendLog("banner schedule: code=${result.code}")
+                    }
+                }
+
                 Text {
                     attr {
                         text(ctx.logText)

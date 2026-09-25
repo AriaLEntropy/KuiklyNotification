@@ -26,4 +26,6 @@ dependencies {
     // Kuikly 渲染层（其传递依赖已包含 appcompat / core / fragment / recyclerview）
     api("com.tencent.kuikly-open:core-render-android:${Version.getKuiklyVersion()}")
     implementation("androidx.appcompat:appcompat:1.2.0")
+    // 前后台判断（ProcessLifecycleOwner）
+    implementation("androidx.lifecycle:lifecycle-process:2.6.2")
 }
