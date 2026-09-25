@@ -1,10 +1,11 @@
 package io.github.arialentropy.notification.module
 
 import android.content.Context
+import android.content.Intent
 import java.lang.ref.WeakReference
 
-/** 当前存活的 Module 弱引用，用于把点击事件分发给常驻监听 */
-internal object KRNotificationLaunch {
+/** 通知点击入口与当前 Module 弱引用 */
+object KRNotificationLaunch {
 
     private var moduleRef: WeakReference<KRNotificationModule>? = null
 
@@ -18,7 +19,19 @@ internal object KRNotificationLaunch {
         }
     }
 
-    fun dispatch(context: Context, id: Int, payload: String?, action: String) {
+    /**
+     * 宿主入口 Activity 在 onCreate / onNewIntent 调用。
+     * 冷启动时缓存 payload；App 存活时直接分发给当前 Module。
+     */
+    fun onNewIntent(context: Context, intent: Intent?) {
+        val i = intent ?: return
+        val id = i.getIntExtra(KRNotificationPayload.KEY_ID, -1)
+        if (id < 0) {
+            return
+        }
+        val payload = i.getStringExtra(KRNotificationPayload.KEY_PAYLOAD)
+        val action = i.getStringExtra(KRNotificationPayload.KEY_ACTION) ?: "default"
+        KRNotificationStore(context).saveLaunch(id, payload, action)
         moduleRef?.get()?.onNotificationClick(id, payload, action)
     }
 }

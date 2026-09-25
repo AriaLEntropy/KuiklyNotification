@@ -1,7 +1,6 @@
 package io.github.arialentropy.notification.module
 
 import android.content.Context
-import android.content.Intent
 
 /**
  * 本地持久化：
@@ -71,8 +70,6 @@ internal class KRNotificationStore(context: Context) {
             ?.toSet()
             ?: emptySet()
 
-    // ---------------- 通知点击入口 ----------------
-
     companion object {
         private const val SP_NAME = "kr_notification"
         private const val KEY_HOST_ACTIVITY = "host_activity"
@@ -83,19 +80,5 @@ internal class KRNotificationStore(context: Context) {
         private const val KEY_LAUNCH_PAYLOAD = "launch_payload"
         private const val KEY_LAUNCH_ACTION = "launch_action"
         private const val KEY_SCHEDULED = "scheduled_ids"
-
-        /**
-         * 宿主入口 Activity 在 onCreate / onNewIntent 调用。
-         * 冷启动时缓存 payload；App 存活时直接分发给当前 Module。
-         */
-        fun onNewIntent(context: Context, intent: Intent?) {
-            val i = intent ?: return
-            val id = i.getIntExtra(KRNotificationPayload.KEY_ID, -1)
-            if (id < 0) return
-            val payload = i.getStringExtra(KRNotificationPayload.KEY_PAYLOAD)
-            val action = i.getStringExtra(KRNotificationPayload.KEY_ACTION) ?: "default"
-            KRNotificationStore(context).saveLaunch(id, payload, action)
-            KRNotificationLaunch.dispatch(context, id, payload, action)
-        }
     }
 }

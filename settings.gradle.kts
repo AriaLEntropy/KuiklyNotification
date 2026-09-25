@@ -29,3 +29,4 @@ rootProject.name = "KuiklyNotification"
 include(":KuiklyNotification")
 include(":KuiklyNotificationAndroid")
 include(":shared")
+include(":androidApp")
