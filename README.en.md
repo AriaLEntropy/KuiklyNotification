@@ -101,17 +101,17 @@ Out of scope:
 
 **Option A: Maven repository (recommended)**
 
-Artifacts are published to this repository's `gh-pages` branch (standard Maven layout). Pick either URL:
+Artifacts are served from this repository's GitHub Pages (standard Maven layout):
 
 ```kotlin
 // settings.gradle.kts
 dependencyResolutionManagement {
     repositories {
         google(); mavenCentral()
-        // (1) plain raw URL — no setup needed
-        maven { url = uri("https://raw.githubusercontent.com/AriaLEntropy/KuiklyNotification/gh-pages/") }
-        // (2) or, after enabling Settings → Pages on the gh-pages branch:
-        // maven { url = uri("https://arialentropy.github.io/KuiklyNotification/") }
+        // this library's Maven repository
+        maven { url = uri("https://arialentropy.github.io/KuiklyNotification/") }
+        // fallback when GitHub Pages is unavailable
+        // maven { url = uri("https://raw.githubusercontent.com/AriaLEntropy/KuiklyNotification/gh-pages/") }
         // Kuikly runtime
         maven { url = uri("https://mirrors.tencent.com/nexus/repository/maven-tencent/") }
     }

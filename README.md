@@ -93,17 +93,17 @@
 
 **方式 A：Maven 仓库（推荐）**
 
-发布物托管在本仓库的 `gh-pages` 分支（标准 Maven 目录结构），两种地址二选一：
+发布物托管在本仓库的 GitHub Pages 上（标准 Maven 目录结构）：
 
 ```kotlin
 // settings.gradle.kts
 dependencyResolutionManagement {
     repositories {
         google(); mavenCentral()
-        // ① 直接走 raw（无需任何设置）
-        maven { url = uri("https://raw.githubusercontent.com/AriaLEntropy/KuiklyNotification/gh-pages/") }
-        // ② 或在 Settings → Pages 选择 gh-pages 分支后：
-        // maven { url = uri("https://arialentropy.github.io/KuiklyNotification/") }
+        // 本库的 Maven 仓库
+        maven { url = uri("https://arialentropy.github.io/KuiklyNotification/") }
+        // 备选：Pages 不可用时用 raw 地址
+        // maven { url = uri("https://raw.githubusercontent.com/AriaLEntropy/KuiklyNotification/gh-pages/") }
         // Kuikly 运行时
         maven { url = uri("https://mirrors.tencent.com/nexus/repository/maven-tencent/") }
     }
