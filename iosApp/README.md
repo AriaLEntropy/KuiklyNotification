@@ -10,28 +10,38 @@
 
 ## 2. 配置 Podfile
 
-工程根目录的 `Podfile`（本目录已提供示例）需要引入三样东西：
+分两种宿主，按需选择（**不要同时引**，否则会 duplicate symbols）：
+
+### A. Demo 宿主（含 `shared` demo 页面，本仓库示例）
+
+`shared` 的静态 framework 已经**把 KMP 层（`KuiklyNotification`）合并进自身**，
+因此只需引组件原生实现 + 渲染库，**不要再引** `pod 'KuiklyNotification'`：
 
 ```ruby
 platform :ios, '12.0'
 use_frameworks!
 
 target 'iosApp' do
-  # 1) 组件原生实现（本仓库根目录）
+  # 组件原生实现（本仓库根目录）
   pod 'KuiklyNotificationIOS', :path => '../'
-  # 2) KMP 跨端层（由 Gradle cocoapods 生成，先执行 ./gradlew :KuiklyNotification:podspec）
-  pod 'KuiklyNotification', :path => '../KuiklyNotification'
-  # 3) Kuikly iOS 渲染库（版本与宿主 Kuikly 一致）
+  # Kuikly iOS 渲染库（版本与宿主 Kuikly 一致）
   pod 'OpenKuiklyIOSRender', '~> 2.24.0'
 end
 ```
 
+### B. 独立宿主（只引 KMP 层、不含 demo 页）
+
+此时才需要单独引入 KMP 层：
+
+```ruby
+  pod 'KuiklyNotification', :path => '../KuiklyNotification'   # 先执行 ./gradlew :KuiklyNotification:podspec
+```
+
+> 实测：在 A 方案里同时引 `KuiklyNotification` 会产生约 15585 个 duplicate symbols。
+
 然后：
 
 ```bash
-cd ..
-./gradlew :KuiklyNotification:podspec      # 生成 KMP 的 podspec
-cd iosApp
 pod install
 ```
 
