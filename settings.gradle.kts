@@ -4,6 +4,9 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
         mavenLocal()
+        maven {
+            url = uri("https://mirrors.tencent.com/nexus/repository/maven-tencent/")
+        }
     }
 }
 
@@ -13,6 +16,9 @@ dependencyResolutionManagement {
         mavenCentral()
         gradlePluginPortal()
         mavenLocal()
+        maven {
+            url = uri("https://mirrors.tencent.com/nexus/repository/maven-tencent/")
+        }
     }
 }
 

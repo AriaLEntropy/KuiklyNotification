@@ -10,7 +10,7 @@ import java.util.Properties
 object Version {
 
     /** Kuikly 主版本 */
-    private const val KUIKLY_VERSION = "2.23.2"
+    private const val KUIKLY_VERSION = "2.24.0"
 
     /** Kotlin 版本 */
     private const val KOTLIN_VERSION = "2.1.21"
