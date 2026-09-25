@@ -26,6 +26,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   / Separate HarmonyOS Kotlin/Native build chain.
 - Maven 发布配置（`maven-publish`，产物落到 `maven-repo/`，可推送到 `gh-pages` 作为公开 Maven 仓库）
   / Maven publishing (artifacts in `maven-repo/`, pushable to `gh-pages` as a public Maven repository).
+- 鸿蒙 ohpm 发布准备：包元数据 / 包内 README 与 LICENSE / `ohpm prepublish` 预校验通过 / `publish-ohpm.sh`
+  （待注册 OpenHarmony 三方库中心仓账号后即可发布）
+  / HarmonyOS ohpm publishing prepared (package metadata, packaged README/LICENSE, passing `ohpm prepublish`,
+  `publish-ohpm.sh`); only an OpenHarmony registry account is pending.
 
 ### Documented
 

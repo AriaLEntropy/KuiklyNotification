@@ -1,11 +1,19 @@
 {
   "name": "@arialentropy/kuikly-notification-ohos",
   "version": "1.0.0",
-  "description": "KuiklyNotification HarmonyOS native module",
+  "description": "KuiklyNotification HarmonyOS native module: cross-platform local notifications for Kuikly.",
   "main": "Index.ets",
   "author": "AriaLEntropy",
   "license": "Apache-2.0",
+  "homepage": "https://github.com/AriaLEntropy/KuiklyNotification",
   "repository": "https://github.com/AriaLEntropy/KuiklyNotification",
+  "keywords": [
+    "kuikly",
+    "harmonyos",
+    "ohos",
+    "notification",
+    "local-notification"
+  ],
   "dependencies": {
     "@kuikly-open/render": "2.24.0"
   }

@@ -692,6 +692,27 @@ git subtree push --prefix maven-repo origin gh-pages
 - 配置了 Sonatype 凭据（`local.properties` 的 `username` / `password`）时会**额外**注册 `central` 仓库
 - **前置条件**：仓库需为 **public**，外部开发者才拉得到
 
+**鸿蒙 HAR → ohpm 中心仓**（已准备，需先注册账号）
+
+```bash
+# 一次性准备（详见 https://ohpm.openharmony.cn）
+#   1) 用华为账号注册，创建组织/作用域（须与包名作用域一致，如 @arialentropy）
+#   2) 生成 publish_id 与 SSH 密钥对：公钥上传，私钥存本地
+#   3) 写入 ~/.ohpm/.ohpmrc：
+#        publish_registry=https://ohpm.openharmony.cn/ohpm/
+#        publish_id=<your-publish-id>
+#        key_path=<path-to-private-key>
+
+./publish-ohpm.sh      # = 构建 HAR → ohpm prepublish 预校验 → ohpm publish
+# 未注册账号时也可只跑预校验：ohpm prepublish <har 路径>
+```
+
+- 包名：`@arialentropy/kuikly-notification-ohos`
+- 发布物就是 `hvigorw assembleHar` 产出的 HAR；模块目录里的 `README.md` / `LICENSE` 会被一并打包
+- 每次发布需递增 `KuiklyNotificationOhos/oh-package.json5` 的 `version`
+- 预校验会提示「HAR 含源码」——HAR 本就分发 ArkTS 源码，属预期（若需混淆，可改用字节码 HAR）
+- 发布后消费者即可 `ohpm install @arialentropy/kuikly-notification-ohos`
+
 #### 12.4 本地构建
 
 ```bash
