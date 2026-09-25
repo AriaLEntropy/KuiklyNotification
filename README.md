@@ -72,6 +72,25 @@ module.openNotificationSettings { }
 
 > ⚠️ 定时 / 重复通知在小米、华为等 OEM 上可能因后台限制不触发，**必须真机验证**。
 
+## 鸿蒙产物编译（Kotlin/Native）
+
+鸿蒙端的 Kuikly 产物需用腾讯定制版 Kotlin 工具链单独编译（官方 Kotlin 不支持 `ohosArm64`）：
+
+```bash
+# OHOS_SDK_HOME 指向 DevEco 的 openharmony SDK
+export OHOS_SDK_HOME="/path/to/DevEco Studio/sdk/default/openharmony"
+./gradlew -c settings.ohos.gradle.kts :shared:linkSharedDebugSharedOhosArm64
+# 产物: shared/build/bin/ohosArm64/sharedDebugShared/libshared.so + libshared_api.h
+```
+
+> 说明：`settings.ohos.gradle.kts` 是独立的鸿蒙编译链（Kotlin `2.0.21-KBA-010` + Kuikly `2.24.0-2.0.21-ohos`），与 Android/iOS 使用的 Kotlin `2.1.21` 相互隔离。
+
+### 鸿蒙已知限制（实测）
+
+- **代理提醒受管控**：定时 / 重复通知依赖代理提醒，需应用具备 `reminder_capability` 云能力（AGC 侧申请）。未申请时 `publishReminder` 返回 `1700002`（配额 0）。相关资质由**宿主自行申请**，本库不代办。
+- **定时提前量不能过短**：实测提前 10 秒 → `401 Parameter error`；30 秒 / 60 秒通过。建议至少留 ≥1 分钟。
+- 模拟器限制：Windows / Intel Mac 上的鸿蒙模拟器是 **x86_64**，而 Kuikly 引擎仅提供 **arm64**，因此 **Kuikly 无法在 Windows/Intel Mac 的鸿蒙模拟器运行**；需鸿蒙真机或 Apple Silicon Mac 的鸿蒙模拟器。
+
 ## 版本
 
 - Kuikly：见 `buildSrc/src/main/java/KotlinBuildVar.kt`
