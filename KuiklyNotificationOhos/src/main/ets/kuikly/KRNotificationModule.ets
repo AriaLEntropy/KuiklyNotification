@@ -1,7 +1,7 @@
 import { KRAny, KuiklyRenderBaseModule, KuiklyRenderCallback } from '@kuikly-open/render';
 import { notificationManager } from '@kit.NotificationKit';
 import { reminderAgentManager } from '@kit.BackgroundTasksKit';
-import { wantAgent, WantAgent, common } from '@kit.AbilityKit';
+import { wantAgent, WantAgent, Want, common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 
 const MODULE_NAME: string = 'KRNotificationModule';
@@ -27,6 +27,35 @@ interface KRNotificationParams {
   timestampMs?: number;
   hostBundleName?: string;
   hostAbilityName?: string;
+}
+
+/** 统一结果 */
+class KRResult {
+  code: number = 0;
+  msg: string = '';
+  data: Object | null = null;
+
+  constructor(code: number, msg: string, data: Object | null) {
+    this.code = code;
+    this.msg = msg;
+    this.data = data;
+  }
+}
+
+class KRStatusData {
+  status: string = '';
+
+  constructor(status: string) {
+    this.status = status;
+  }
+}
+
+class KRCountData {
+  count: number = 0;
+
+  constructor(count: number) {
+    this.count = count;
+  }
 }
 
 /**
@@ -106,12 +135,12 @@ export class KRNotificationModule extends KuiklyRenderBaseModule {
   /** 宿主 Ability 在 onCreate / onNewWant 调用 */
   populateLaunchNotification(parameters: Record<string, Object>): void {
     const id = parameters['id'] as number;
-    const payload = parameters['payload'] as string;
     if (id === undefined) {
       return;
     }
-    this.launchNotification = { id: id, payload: payload ?? '', action: 'default' };
-    if (this.clickCallback != null) {
+    const payload = parameters['payload'] as string;
+    this.launchNotification = new KRLaunchPayload(id, payload ?? '', 'default');
+    if (this.clickCallback !== null) {
       this.clickCallback(this.launchNotification);
     }
   }
@@ -126,7 +155,7 @@ export class KRNotificationModule extends KuiklyRenderBaseModule {
     if (p.hostAbilityName !== undefined) {
       this.hostAbilityName = p.hostAbilityName;
     }
-    this.respond(callback, this.ok({}));
+    this.respond(callback, this.ok(null));
   }
 
   // ---------------- 权限 ----------------
@@ -134,20 +163,20 @@ export class KRNotificationModule extends KuiklyRenderBaseModule {
   private requestPermission(callback: KuiklyRenderCallback | null): void {
     notificationManager.requestEnableNotification(this.context)
       .then(() => {
-        this.respond(callback, this.ok({ status: 'GRANTED' }));
+        this.respond(callback, this.ok(new KRStatusData('GRANTED')));
       })
       .catch((err: BusinessError) => {
-        this.respond(callback, this.ok({ status: 'DENIED' }));
+        this.respond(callback, this.ok(new KRStatusData('DENIED')));
       });
   }
 
   private checkPermission(callback: KuiklyRenderCallback | null): void {
     notificationManager.isNotificationEnabled()
       .then((enabled: boolean) => {
-        this.respond(callback, this.ok({ status: enabled ? 'GRANTED' : 'DENIED' }));
+        this.respond(callback, this.ok(new KRStatusData(enabled ? 'GRANTED' : 'DENIED')));
       })
       .catch((err: BusinessError) => {
-        this.respond(callback, this.ok({ status: 'DENIED' }));
+        this.respond(callback, this.ok(new KRStatusData('DENIED')));
       });
   }
 
@@ -157,7 +186,7 @@ export class KRNotificationModule extends KuiklyRenderBaseModule {
     const p = this.parse(params);
     notificationManager.addSlot(this.toSlotType(p.importance))
       .then(() => {
-        this.respond(callback, this.ok({}));
+        this.respond(callback, this.ok(null));
       })
       .catch((err: BusinessError) => {
         this.respond(callback, this.fail(CODE_INVALID_REQUEST, err.message));
@@ -169,21 +198,22 @@ export class KRNotificationModule extends KuiklyRenderBaseModule {
   private show(params: KRAny, callback: KuiklyRenderCallback | null): void {
     const p = this.parse(params);
     this.buildWantAgent(p).then((agent: WantAgent) => {
+      const content: notificationManager.NotificationContent = {
+        notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
+        normal: {
+          title: p.title ?? '',
+          text: p.body ?? ''
+        }
+      };
       const request: notificationManager.NotificationRequest = {
         id: p.id ?? 0,
-        content: {
-          notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
-          normal: {
-            title: p.title ?? '',
-            text: p.body ?? ''
-          }
-        },
+        content: content,
         notificationSlotType: this.toSlotType(p.importance),
         wantAgent: agent
       };
       notificationManager.publish(request)
         .then(() => {
-          this.respond(callback, this.ok({}));
+          this.respond(callback, this.ok(null));
         })
         .catch((err: BusinessError) => {
           this.respond(callback, this.fail(CODE_INVALID_REQUEST, err.message));
@@ -200,34 +230,31 @@ export class KRNotificationModule extends KuiklyRenderBaseModule {
       return;
     }
     const date = new Date(p.timestampMs);
-    this.buildWantAgent(p).then((agent: WantAgent) => {
-      const reminder: reminderAgentManager.ReminderRequestCalendar = {
-        reminderType: reminderAgentManager.ReminderType.REMINDER_TYPE_CALENDAR,
-        dateTime: {
-          year: date.getFullYear(),
-          month: date.getMonth() + 1,
-          day: date.getDate(),
-          hour: date.getHours(),
-          minute: date.getMinutes(),
-          second: date.getSeconds()
-        },
-        title: p.title ?? '',
-        content: p.body ?? '',
-        notificationId: p.id ?? 0,
-        slotType: this.toSlotType(p.importance),
-        wantAgent: agent
-      };
-      reminderAgentManager.publishReminder(reminder)
-        .then((reminderId: number) => {
-          this.reminderMap.set(p.id ?? 0, reminderId);
-          this.respond(callback, this.ok({}));
-        })
-        .catch((err: BusinessError) => {
-          this.respond(callback, this.fail(CODE_REMINDER_NOT_ALLOWED, err.message));
-        });
-    }).catch((err: BusinessError) => {
-      this.respond(callback, this.fail(CODE_INVALID_REQUEST, err.message));
-    });
+    const reminderWantAgent = this.buildReminderWantAgent(p);
+    const reminder: reminderAgentManager.ReminderRequestCalendar = {
+      reminderType: reminderAgentManager.ReminderType.REMINDER_TYPE_CALENDAR,
+      dateTime: {
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate(),
+        hour: date.getHours(),
+        minute: date.getMinutes(),
+        second: date.getSeconds()
+      },
+      title: p.title ?? '',
+      content: p.body ?? '',
+      notificationId: p.id ?? 0,
+      slotType: this.toSlotType(p.importance),
+      wantAgent: reminderWantAgent
+    };
+    reminderAgentManager.publishReminder(reminder)
+      .then((reminderId: number) => {
+        this.reminderMap.set(p.id ?? 0, reminderId);
+        this.respond(callback, this.ok(null));
+      })
+      .catch((err: BusinessError) => {
+        this.respond(callback, this.fail(CODE_REMINDER_NOT_ALLOWED, err.message));
+      });
   }
 
   private showPeriodically(params: KRAny, callback: KuiklyRenderCallback | null): void {
@@ -237,34 +264,30 @@ export class KRNotificationModule extends KuiklyRenderBaseModule {
       this.respond(callback, this.fail(CODE_UNSUPPORTED_INTERVAL, `unsupported interval: ${interval}`));
       return;
     }
-    const date = new Date();
-    const daysOfWeek: number[] =
-      interval === 'WEEK'
-        ? [date.getDay() === 0 ? 7 : date.getDay()]
-        : [1, 2, 3, 4, 5, 6, 7];
-    this.buildWantAgent(p).then((agent: WantAgent) => {
-      const reminder: reminderAgentManager.ReminderRequestAlarm = {
-        reminderType: reminderAgentManager.ReminderType.REMINDER_TYPE_ALARM,
-        hour: date.getHours(),
-        minute: date.getMinutes(),
-        daysOfWeek: daysOfWeek,
-        title: p.title ?? '',
-        content: p.body ?? '',
-        notificationId: p.id ?? 0,
-        slotType: this.toSlotType(p.importance),
-        wantAgent: agent
-      };
-      reminderAgentManager.publishReminder(reminder)
-        .then((reminderId: number) => {
-          this.reminderMap.set(p.id ?? 0, reminderId);
-          this.respond(callback, this.ok({}));
-        })
-        .catch((err: BusinessError) => {
-          this.respond(callback, this.fail(CODE_REMINDER_NOT_ALLOWED, err.message));
-        });
-    }).catch((err: BusinessError) => {
-      this.respond(callback, this.fail(CODE_INVALID_REQUEST, err.message));
-    });
+    const now = new Date();
+    const daysOfWeek: number[] = interval === 'WEEK'
+      ? [now.getDay() === 0 ? 7 : now.getDay()]
+      : [1, 2, 3, 4, 5, 6, 7];
+    const reminderWantAgent = this.buildReminderWantAgent(p);
+    const reminder: reminderAgentManager.ReminderRequestAlarm = {
+      reminderType: reminderAgentManager.ReminderType.REMINDER_TYPE_ALARM,
+      hour: now.getHours(),
+      minute: now.getMinutes(),
+      daysOfWeek: daysOfWeek,
+      title: p.title ?? '',
+      content: p.body ?? '',
+      notificationId: p.id ?? 0,
+      slotType: this.toSlotType(p.importance),
+      wantAgent: reminderWantAgent
+    };
+    reminderAgentManager.publishReminder(reminder)
+      .then((reminderId: number) => {
+        this.reminderMap.set(p.id ?? 0, reminderId);
+        this.respond(callback, this.ok(null));
+      })
+      .catch((err: BusinessError) => {
+        this.respond(callback, this.fail(CODE_REMINDER_NOT_ALLOWED, err.message));
+      });
   }
 
   // ---------------- 取消 ----------------
@@ -275,17 +298,19 @@ export class KRNotificationModule extends KuiklyRenderBaseModule {
     notificationManager.cancel(id);
     const reminderId = this.reminderMap.get(id);
     if (reminderId !== undefined) {
-      reminderAgentManager.cancelReminder(reminderId).catch((err: BusinessError) => {});
+      reminderAgentManager.cancelReminder(reminderId).catch((err: BusinessError) => {
+      });
       this.reminderMap.delete(id);
     }
-    this.respond(callback, this.ok({}));
+    this.respond(callback, this.ok(null));
   }
 
   private cancelAll(callback: KuiklyRenderCallback | null): void {
     notificationManager.cancelAll();
-    reminderAgentManager.cancelAllReminders().catch((err: BusinessError) => {});
+    reminderAgentManager.cancelAllReminders().catch((err: BusinessError) => {
+    });
     this.reminderMap.clear();
-    this.respond(callback, this.ok({}));
+    this.respond(callback, this.ok(null));
   }
 
   // ---------------- 冷启动（同步） ----------------
@@ -301,20 +326,38 @@ export class KRNotificationModule extends KuiklyRenderBaseModule {
 
   // ---------------- 内部工具 ----------------
 
+  /** 立即通知使用 AbilityKit WantAgent */
   private async buildWantAgent(p: KRNotificationParams): Promise<WantAgent> {
+    const parameters: Record<string, Object> = {
+      'payload': p.payload ?? '',
+      'id': p.id ?? 0
+    };
+    const want: Want = {
+      bundleName: this.hostBundleName,
+      abilityName: this.hostAbilityName,
+      parameters: parameters
+    };
     const info: wantAgent.WantAgentInfo = {
-      wants: [
-        {
-          bundleName: this.hostBundleName,
-          abilityName: this.hostAbilityName,
-          parameters: { payload: p.payload ?? '', id: p.id ?? 0 }
-        }
-      ],
+      wants: [want],
       actionType: wantAgent.OperationType.START_ABILITY,
       requestCode: p.id ?? 0,
       actionFlags: [wantAgent.WantAgentFlags.UPDATE_PRESENT_FLAG]
     };
     return await wantAgent.getWantAgent(info);
+  }
+
+  /** 定时/重复提醒使用 ReminderAgent 自带的 WantAgent 结构 */
+  private buildReminderWantAgent(p: KRNotificationParams): reminderAgentManager.WantAgent {
+    const parameters: Record<string, Object> = {
+      'payload': p.payload ?? '',
+      'id': p.id ?? 0
+    };
+    const reminderWantAgent: reminderAgentManager.WantAgent = {
+      pkgName: this.hostBundleName,
+      abilityName: this.hostAbilityName,
+      parameters: parameters
+    };
+    return reminderWantAgent;
   }
 
   private toSlotType(importance?: string): notificationManager.SlotType {
@@ -341,17 +384,30 @@ export class KRNotificationModule extends KuiklyRenderBaseModule {
     return {};
   }
 
-  private ok(data: Object | null): KRAny {
-    return { code: 0, msg: '', data: data ?? {} };
+  private ok(data: Object | null): KRResult {
+    return new KRResult(0, '', data);
   }
 
-  private fail(code: number, msg: string): KRAny {
-    return { code: code, msg: msg, data: null };
+  private fail(code: number, msg: string): KRResult {
+    return new KRResult(code, msg, null);
   }
 
-  private respond(callback: KuiklyRenderCallback | null, result: KRAny): void {
+  private respond(callback: KuiklyRenderCallback | null, result: KRResult): void {
     if (callback !== null) {
       callback(result);
     }
+  }
+}
+
+/** 冷启动 / 点击事件 payload */
+class KRLaunchPayload {
+  id: number = 0;
+  payload: string = '';
+  action: string = 'default';
+
+  constructor(id: number, payload: string, action: string) {
+    this.id = id;
+    this.payload = payload;
+    this.action = action;
   }
 }

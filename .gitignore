@@ -35,3 +35,7 @@ Kotlin-js-store
 **/oh_modules/
 **/.hvigor/
 **/build/default/
+**/BuildProfile.ets
+**/.clangd
+**/.clang-format
+**/.cxx

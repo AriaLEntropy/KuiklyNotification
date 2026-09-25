@@ -1,0 +1,11 @@
+{
+  "modelVersion": "5.0.0",
+  "name": "kuiklynotificationohosapp",
+  "version": "1.0.0",
+  "description": "Workspace for building KuiklyNotificationOhos HAR",
+  "main": "",
+  "author": "AriaLEntropy",
+  "license": "Apache-2.0",
+  "dependencies": {},
+  "devDependencies": {}
+}
