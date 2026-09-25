@@ -89,9 +89,7 @@
 
 #### 3.2 引入依赖
 
-> **仓库可见性说明**：本仓库当前为 **private**。下面的 Maven / CocoaPods `:git` 路径**已配置并本地自测通过**，但**只有仓库转为 public 后，外部开发者才能拉取**。公开之前请使用「方式 B：源码引入」。
-
-**方式 A：Maven 仓库（推荐；需仓库 public）**
+**方式 A：Maven 仓库（推荐）**
 
 发布物托管在本仓库的 `gh-pages` 分支（标准 Maven 目录结构），两种地址二选一：
 
@@ -132,10 +130,10 @@ includeBuild("../KuiklyNotification")
 **iOS（CocoaPods）**
 
 ```ruby
-# 仓库 public 后：直接用 git tag（推荐）
+# 直接用 git tag（推荐）
 pod 'KuiklyNotificationIOS', :git => 'https://github.com/AriaLEntropy/KuiklyNotification.git', :tag => '1.0.0'
 
-# 本地开发 / 仓库私有期间
+# 或本地路径
 pod 'KuiklyNotificationIOS', :path => '../KuiklyNotification'
 
 pod 'OpenKuiklyIOSRender', '~> 2.24.0'   # Kuikly iOS 渲染库，版本与宿主 Kuikly 一致
@@ -688,7 +686,6 @@ git subtree push --prefix maven-repo origin gh-pages
 - 坐标：`io.github.arialentropy:KuiklyNotification` / `KuiklyNotificationAndroid`
 - 发布仓库：仓库内 `maven-repo/` → `gh-pages` 分支（`Publishing.registerRepositories` 中定义）
 - 配置了 Sonatype 凭据（`local.properties` 的 `username` / `password`）时会**额外**注册 `central` 仓库
-- **前置条件**：仓库需为 **public**，外部开发者才拉得到
 
 **鸿蒙 HAR → ohpm 中心仓**（已准备，需先注册账号）
 

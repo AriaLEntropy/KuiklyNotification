@@ -96,11 +96,7 @@ handling, channels, tap-to-open and cold-start payload.
 
 #### 3.2 Adding the dependency
 
-> **Repository visibility**: this repository is currently **private**. The Maven / CocoaPods `:git` paths below
-> **are configured and locally verified**, but external developers can only fetch them **once the repository is
-> public**. Until then, use *Option B: build from source*.
-
-**Option A: Maven repository (recommended; requires a public repo)**
+**Option A: Maven repository (recommended)**
 
 Artifacts are published to this repository's `gh-pages` branch (standard Maven layout). Pick either URL:
 
@@ -141,10 +137,10 @@ includeBuild("../KuiklyNotification")
 **iOS (CocoaPods)**
 
 ```ruby
-# once the repo is public: reference the git tag (recommended)
+# reference the git tag (recommended)
 pod 'KuiklyNotificationIOS', :git => 'https://github.com/AriaLEntropy/KuiklyNotification.git', :tag => '1.0.0'
 
-# local development / while the repo is private
+# or a local path
 pod 'KuiklyNotificationIOS', :path => '../KuiklyNotification'
 
 pod 'OpenKuiklyIOSRender', '~> 2.24.0'   # match your Kuikly version
@@ -709,7 +705,6 @@ git subtree push --prefix maven-repo origin gh-pages
 - Coordinates: `io.github.arialentropy:KuiklyNotification` / `KuiklyNotificationAndroid`
 - Repository: `maven-repo/` in this repo → `gh-pages` branch (defined in `Publishing.registerRepositories`)
 - If Sonatype credentials exist (`username` / `password` in `local.properties`), a `central` repository is added as well
-- **Prerequisite**: the repository must be **public** for external developers to fetch
 
 **HarmonyOS HAR → ohpm registry** (prepared; an account is required)
 
