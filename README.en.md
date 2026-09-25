@@ -14,8 +14,6 @@ A cross-platform **local notification** component for [Kuikly](https://github.co
 handling, channels, immediate/scheduled/repeating notifications, cancel, tap-to-open, cold-start payload
 and badges (iOS).
 
-> Glossary: 通知渠道 = Notification Channel / Slot · 横幅 = Heads-up / Banner · 代理提醒 = Agent-powered Reminder · 冷启动 = Cold start
-
 ## Table of contents
 
 1. [What it is / is not](#1-what-it-is--is-not)

@@ -12,8 +12,6 @@
 基于 [Kuikly](https://github.com/Tencent-TDS/KuiklyUI) 的**跨端本地通知组件**（Android / iOS / 鸿蒙）。
 一套 Kotlin 代码，在系统通知栏弹出消息，支持权限、渠道、立即/定时/重复通知、取消、点击回跳、冷启动 payload、角标（iOS）。
 
-> 术语：通知渠道 = Notification Channel / Slot · 横幅 = Heads-up / Banner · 代理提醒 = Agent-powered Reminder · 冷启动 = Cold start
-
 ## 目录
 
 1. [这是什么 / 不是什么](#1-这是什么--不是什么)
