@@ -229,17 +229,12 @@ static NSString *KRIdentifier(NSDictionary *params) {
 
 - (void)getBadge:(NSDictionary *)args {
     KuiklyRenderCallback callback = args[KR_CALLBACK_KEY];
-    if (@available(iOS 16.0, *)) {
-        [[UNUserNotificationCenter currentNotificationCenter]
-            getBadgeCountWithCompletionHandler:^(NSInteger badge) {
-            KRInvoke(callback, KROkData(@{ @"count": @(badge) }));
-        }];
-    } else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NSInteger badge = [UIApplication sharedApplication].applicationIconBadgeNumber;
-            KRInvoke(callback, KROkData(@{ @"count": @(badge) }));
-        });
-    }
+    // 注：UNUserNotificationCenter 无公开的 badge getter（仅 setBadgeCount:withCompletionHandler:），
+    // 各 iOS 版本统一读取 UIApplication.applicationIconBadgeNumber。
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSInteger badge = [UIApplication sharedApplication].applicationIconBadgeNumber;
+        KRInvoke(callback, KROkData(@{ @"count": @(badge) }));
+    });
 }
 
 #pragma mark 点击事件

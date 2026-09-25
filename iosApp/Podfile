@@ -2,11 +2,13 @@ platform :ios, '12.0'
 use_frameworks!
 
 target 'iosApp' do
-  # 本地组件
+  # 1) 组件原生实现（本仓库根目录）
   pod 'KuiklyNotificationIOS', :path => '../'
-  # KMP 跨端层（由 Gradle cocoapods 集成生成，通常在 Xcode 侧通过 Gradle 同步）
-  # pod 'KuiklyNotification', :path => '../KuiklyNotification'
-
-  # Kuikly iOS 渲染库（版本随宿主 Kuikly 版本）
-  # pod 'OpenKuiklyIOSRender', '~> 2.24.0'
+  # 2) Demo 页与业务代码（shared 模块，@Page("router")）。
+  #    Kotlin/Native 静态 framework 会把依赖(含 :KuiklyNotification 的 KMP 代码与 stdlib)合并进自身，
+  #    若再单独引入 'KuiklyNotification' pod 会在 App 链接期产生大量 duplicate symbol，故 Demo 工程不引入。
+  #    其他宿主若只需 KMP 层（不含 demo 页），可单独使用 pod 'KuiklyNotification', :path => '../KuiklyNotification'（先 ./gradlew :KuiklyNotification:podspec）。
+  pod 'shared', :path => '../shared'
+  # 3) Kuikly iOS 渲染库（版本与宿主 Kuikly 一致）
+  pod 'OpenKuiklyIOSRender', '~> 2.24.0'
 end

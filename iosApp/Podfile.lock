@@ -1,0 +1,29 @@
+PODS:
+  - KuiklyNotificationIOS (1.0.0):
+    - OpenKuiklyIOSRender (~> 2.24.0)
+  - OpenKuiklyIOSRender (2.24.0)
+  - shared (1.0.0)
+
+DEPENDENCIES:
+  - KuiklyNotificationIOS (from `../`)
+  - OpenKuiklyIOSRender (~> 2.24.0)
+  - shared (from `../shared`)
+
+SPEC REPOS:
+  trunk:
+    - OpenKuiklyIOSRender
+
+EXTERNAL SOURCES:
+  KuiklyNotificationIOS:
+    :path: "../"
+  shared:
+    :path: "../shared"
+
+SPEC CHECKSUMS:
+  KuiklyNotificationIOS: 5bced0c0d4db31245f9fd4edfc5e8e5d15151351
+  OpenKuiklyIOSRender: 7e846eb2455ead4090f475f692e33ac717c4bcac
+  shared: e05df7de64ee6e7b6b9c5cafe91362cd201dd368
+
+PODFILE CHECKSUM: 4c852db430fd5e9df3e4ba90e74b2b6f9014ceaf
+
+COCOAPODS: 1.17.0

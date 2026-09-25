@@ -14,6 +14,6 @@ Pod::Spec.new do |s|
   s.source_files     = 'KuiklyNotificationIOS/Classes/**/*.{h,m}'
   s.frameworks       = 'UserNotifications', 'UIKit'
 
-  # Kuikly iOS 渲染库（版本随宿主 Kuikly 版本，如 '~> 2.24.0'）
-  s.dependency 'OpenKuiklyIOSRender'
+  # Kuikly iOS 渲染库（版本与宿主 Kuikly 版本对齐，当前为 2.24.0）
+  s.dependency 'OpenKuiklyIOSRender', '~> 2.24.0'
 end
