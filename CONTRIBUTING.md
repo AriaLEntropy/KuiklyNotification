@@ -76,18 +76,6 @@ PR checklist：
 - [ ] README（中文 + English）已同步
 - [ ] CHANGELOG 已记录
 
-## 发布（维护者）
-
-```bash
-./publish-maven.sh            # 或 Windows 见 README §12.3
-git add maven-repo && git commit -m "chore(release): publish maven artifacts"
-git subtree push --prefix maven-repo origin gh-pages
-```
-
-- iOS 通过 CocoaPods 直接引用 git tag，无需发布 trunk
-- 鸿蒙目前分发 HAR（`ohpm` 发布为后续可选）
-- 坐标与 POM 元数据均由 `buildSrc` 的 `MavenConfig` / `Publishing` 统一提供
-
 ---
 
 ## Contributing (English summary)

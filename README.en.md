@@ -171,7 +171,7 @@ hvigorw assembleHar
 ```
 
 > If it is later published to the ohpm registry, this becomes `ohpm install @xiaoaiechan/kuikly-notification-ohos`
-> (the ecosystem convention, see [§12.3](#123-release-flow-maintainers)).
+>.
 
 #### 3.3 Common step: `configure`
 
@@ -686,52 +686,7 @@ maven-repo/                    published Maven artifacts (push to gh-pages to se
 
 > Adding both produces a large number of **duplicate symbols** at link time (>15k observed). Always pick one.
 
-#### 12.3 Release flow (maintainers)
-
-Maven artifacts (KMP + Android):
-
-```bash
-# Linux / macOS
-./publish-maven.sh
-# Windows
-.\gradlew.bat :KuiklyNotification:publishAllPublicationsToLocalRepoRepository `
-              :KuiklyNotificationAndroid:publishReleasePublicationToLocalRepoRepository
-
-# push to the gh-pages branch to serve a public Maven repository
-git add maven-repo && git commit -m "chore(release): publish maven artifacts"
-git subtree push --prefix maven-repo origin gh-pages
-```
-
-- Coordinates: `io.github.arialentropy:KuiklyNotification` / `KuiklyNotificationAndroid`
-- Repository: `maven-repo/` in this repo → `gh-pages` branch (defined in `Publishing.registerRepositories`)
-- If Sonatype credentials exist (`username` / `password` in `local.properties`), a `central` repository is added as well
-
-**HarmonyOS HAR → ohpm registry** (prepared; an account is required)
-
-```bash
-# One-time setup (see https://ohpm.openharmony.cn)
-#   1) register with a Huawei account and create an organization/scope
-#      The personal account scope IS the username (this package uses @xiaoaiechan);
-#      a custom scope (e.g. @arialentropy) requires an organization, which needs enterprise verification
-#   2) generate a publish_id and an SSH key pair: upload the public key, keep the private key locally
-#   3) write ~/.ohpm/.ohpmrc:
-#        publish_registry=https://ohpm.openharmony.cn/ohpm/
-#        publish_id=<your-publish-id>
-#        key_path=<path-to-private-key>
-
-./publish-ohpm.sh      # = build HAR → ohpm prepublish → ohpm publish
-# without an account you can still run the local pre-check: ohpm prepublish <har>
-```
-
-- Package name: `@xiaoaiechan/kuikly-notification-ohos`
-- The published artifact is the HAR produced by `hvigorw assembleHar`; `README.md` / `LICENSE` in the module
-  directory are packed into it
-- Bump `KuiklyNotificationOhos/oh-package.json5`'s `version` on every release
-- The pre-check warns that the HAR contains source code — that is expected (a HAR ships ArkTS source; switch to a
-  bytecode HAR if obfuscation is required)
-- After publishing, consumers can simply run `ohpm install @xiaoaiechan/kuikly-notification-ohos`
-
-#### 12.4 Build locally
+#### 12.3 Build locally
 
 ```bash
 ./gradlew :androidApp:assembleDebug                       # Android (any OS)
@@ -745,7 +700,7 @@ cd ohosApp && hvigorw assembleHar                          # HarmonyOS HAR
 ./gradlew -c settings.ohos.gradle.kts :shared:linkSharedDebugSharedOhosArm64   # HarmonyOS KN artifact
 ```
 
-#### 12.5 Adding a capability
+#### 12.4 Adding a capability
 
 1. Add the method on the Kuikly side (`KuiklyNotification/src/commonMain`; `KRNotificationModule` is a concrete class)
 2. Implement on all three platforms (`KRNotificationModule`(Android) / `.m`(iOS, selector dispatch) / `.ets`(HarmonyOS, `call()`)
@@ -754,13 +709,13 @@ cd ohosApp && hvigorw assembleHar                          # HarmonyOS HAR
 5. Register platform differences in [§5](#5-platform-differences--limitations)
 6. **Update both languages of this README** and add a [`CHANGELOG.md`](CHANGELOG.md) entry
 
-#### 12.6 Commit conventions
+#### 12.5 Commit conventions
 
 - One concern per commit; verify locally whenever it compiles
 - Conventional commits: `feat(android):` / `fix(ohos):` / `docs:` / `style(demo):`
 - Public API changes require updating both languages of this README and the CHANGELOG
 
-#### 12.7 Tests
+#### 12.6 Tests
 
 `KuiklyNotification` reserves `commonTest` (Kotlin Test). Verification is currently driven by the three demos plus
 real-device testing (see [§9](#9-demos--verification)). More details in [`CONTRIBUTING.md`](CONTRIBUTING.md).

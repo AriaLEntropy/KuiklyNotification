@@ -163,7 +163,7 @@ hvigorw assembleHar
 }
 ```
 
-> 未来若发布到 ohpm 公共仓，即可改为 `ohpm install @xiaoaiechan/kuikly-notification-ohos`（对齐生态做法，见 [§12.3](#123-发布流程维护者)）。
+> 未来若发布到 ohpm 公共仓，即可改为 `ohpm install @xiaoaiechan/kuikly-notification-ohos`。
 
 #### 3.3 通用第一步：`configure`
 
@@ -667,49 +667,7 @@ maven-repo/                    已发布的 Maven 产物（推到 gh-pages 即�
 
 > 两者同时引入会在链接期产生**大量 duplicate symbols**（曾观察到 >1.5 万条），务必只引其一。
 
-#### 12.3 发布流程（维护者）
-
-Maven 产物（KMP + Android）：
-
-```bash
-# Linux / macOS
-./publish-maven.sh
-# Windows
-.\gradlew.bat :KuiklyNotification:publishAllPublicationsToLocalRepoRepository `
-              :KuiklyNotificationAndroid:publishReleasePublicationToLocalRepoRepository
-
-# 推送到 gh-pages 分支，成为公开 Maven 仓库
-git add maven-repo && git commit -m "chore(release): publish maven artifacts"
-git subtree push --prefix maven-repo origin gh-pages
-```
-
-- 坐标：`io.github.arialentropy:KuiklyNotification` / `KuiklyNotificationAndroid`
-- 发布仓库：仓库内 `maven-repo/` → `gh-pages` 分支（`Publishing.registerRepositories` 中定义）
-- 配置了 Sonatype 凭据（`local.properties` 的 `username` / `password`）时会**额外**注册 `central` 仓库
-
-**鸿蒙 HAR → ohpm 中心仓**（已准备，需先注册账号）
-
-```bash
-# 一次性准备（详见 https://ohpm.openharmony.cn）
-#   1) 注册 OpenHarmony 三方库中心仓账号；个人账号的作用域 = 用户名（本包为 `@xiaoaiechan`）；
-#      想自定义作用域（如 `@arialentropy`）需创建组织，中心仓要求企业实名认证
-#   2) 生成 publish_id 与 SSH 密钥对：公钥上传，私钥存本地
-#   3) 写入 ~/.ohpm/.ohpmrc：
-#        publish_registry=https://ohpm.openharmony.cn/ohpm/
-#        publish_id=<your-publish-id>
-#        key_path=<path-to-private-key>
-
-./publish-ohpm.sh      # = 构建 HAR → ohpm prepublish 预校验 → ohpm publish
-# 未注册账号时也可只跑预校验：ohpm prepublish <har 路径>
-```
-
-- 包名：`@xiaoaiechan/kuikly-notification-ohos`
-- 发布物就是 `hvigorw assembleHar` 产出的 HAR；模块目录里的 `README.md` / `LICENSE` 会被一并打包
-- 每次发布需递增 `KuiklyNotificationOhos/oh-package.json5` 的 `version`
-- 预校验会提示「HAR 含源码」——HAR 本就分发 ArkTS 源码，属预期（若需混淆，可改用字节码 HAR）
-- 发布后消费者即可 `ohpm install @xiaoaiechan/kuikly-notification-ohos`
-
-#### 12.4 本地构建
+#### 12.3 本地构建
 
 ```bash
 ./gradlew :androidApp:assembleDebug                       # Android（任意 OS）
@@ -723,7 +681,7 @@ cd ohosApp && hvigorw assembleHar                          # 鸿蒙 HAR
 ./gradlew -c settings.ohos.gradle.kts :shared:linkSharedDebugSharedOhosArm64   # 鸿蒙 KN 产物
 ```
 
-#### 12.5 新增一个能力的约定
+#### 12.4 新增一个能力的约定
 
 1. Kuikly 侧 `KuiklyNotification/src/commonMain` 加方法（`KRNotificationModule` 是具体类，不用 expect/actual）
 2. 三端各自实现：`KRNotificationModule`(Android) / `.m`(iOS，按方法名反射分发) / `.ets`(鸿蒙，`call()` 分发)
@@ -732,13 +690,13 @@ cd ohosApp && hvigorw assembleHar                          # 鸿蒙 HAR
 5. 平台差异登记到本文档 [§5](#5-平台差异与已知限制)
 6. **中英双语同步更新**，并在 [`CHANGELOG.md`](CHANGELOG.md) 记录
 
-#### 12.6 提交约定
+#### 12.5 提交约定
 
 - 一个提交一个关注点；能编译就本地验证
 - 语义化提交：`feat(android):` / `fix(ohos):` / `docs:` / `style(demo):`
 - 改了公共 API：必须同时更新文档两语言 + CHANGELOG
 
-#### 12.7 测试
+#### 12.6 测试
 
 `KuiklyNotification` 已预留 `commonTest`（Kotlin Test）。当前以**三端 Demo + 真机验证**为主（见 [§9](#9-demo-与验证)）。更多约定见 [`CONTRIBUTING.md`](CONTRIBUTING.md)。
 
