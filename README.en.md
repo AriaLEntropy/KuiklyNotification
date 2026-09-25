@@ -14,6 +14,8 @@ A cross-platform **local notification** component for [Kuikly](https://github.co
 handling, channels, immediate/scheduled/repeating notifications, cancel, tap-to-open, cold-start payload
 and badges (iOS).
 
+Want to try the demo quickly? Click [Downloads](https://github.com/AriaLEntropy/KuiklyNotification/releases) for the APK / HAP.
+
 ## Table of contents
 
 - [What this repo does](#what-this-repo-does)

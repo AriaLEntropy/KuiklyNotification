@@ -12,6 +12,8 @@
 基于 [Kuikly](https://github.com/Tencent-TDS/KuiklyUI) 的**跨端本地通知组件**（Android / iOS / 鸿蒙）。
 一套 Kotlin 代码，在系统通知栏弹出消息，支持权限、渠道、立即/定时/重复通知、取消、点击回跳、冷启动 payload、角标（iOS）。
 
+想快速体验 demo？点击 [下载](https://github.com/AriaLEntropy/KuiklyNotification/releases) 里的 APK / HAP。
+
 ## 目录
 
 - [仓库职责](#仓库职责)
