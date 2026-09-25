@@ -49,6 +49,29 @@ Android 横幅只对 `IMPORTANCE_HIGH` 的渠道生效，且**渠道创建后重
 
 > 已在较低重要性下创建过的渠道无法升级，只能换新的 channelId 或卸载重装。
 
+## 厂商适配与设置引导（Android）
+
+国内 ROM 对后台 / 本地通知有额外限制，**相关资质与参数由宿主开发者自行申请、配置，本库不代为申请**：
+
+| 事项 | 谁负责 | 说明 |
+|---|---|---|
+| 小米「后台发送本地通知」白名单 | 宿主 | 小米默认禁止后台发本地通知，需向小米申请白名单，或改用小米推送 |
+| 华为「消息自分类」权益 | 宿主 | 未申请时本地通知按「资讯营销类」限频 |
+| 自启动 / 后台白名单 | 宿主 + 用户 | 影响定时 / 重复通知在应用被杀后能否触发 |
+| 厂商推送通道参数 | 宿主（未来 KuiklyPush） | 仅离线推送需要（小米 / 华为 / 荣耀 / OPPO / vivo / 魅族） |
+| Android 角标 | 宿主（或二期组件） | 无统一 API，需按厂商单独适配 |
+
+本库提供**设置引导**能力（Android；其他端回调 `UNSUPPORTED`）：
+
+```kotlin
+module.isBatteryOptimizationEnabled { r -> /* r.data: {"enabled": true} 表示电池优化开启（未加白名单） */ }
+module.openBatteryOptimizationSettings { }
+module.openAutoStartSettings { }   // 小米/华为/荣耀/OPPO/vivo/魅族；无对应页面时回退应用详情
+module.openNotificationSettings { }
+```
+
+> ⚠️ 定时 / 重复通知在小米、华为等 OEM 上可能因后台限制不触发，**必须真机验证**。
+
 ## 版本
 
 - Kuikly：见 `buildSrc/src/main/java/KotlinBuildVar.kt`

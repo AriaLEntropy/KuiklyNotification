@@ -4,12 +4,16 @@ import android.Manifest
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
+import android.provider.Settings
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
@@ -77,6 +81,10 @@ class KRNotificationModule : KuiklyRenderBaseModule() {
             "cancelAll" -> { cancelAll(callback); null }
             "setBadge" -> { unsupported(callback); null }
             "getBadge" -> { unsupported(callback); null }
+            "isBatteryOptimizationEnabled" -> { checkBatteryOptimization(callback); null }
+            "openBatteryOptimizationSettings" -> { openBatteryOptimizationSettings(callback); null }
+            "openAutoStartSettings" -> { openAutoStartSettings(callback); null }
+            "openNotificationSettings" -> { openNotificationSettings(callback); null }
             "setNotificationClickListener" -> { clickCallback = callback; null }
             "removeNotificationClickListener" -> { clickCallback = null; null }
             "getLaunchNotification" -> getLaunchNotification()
@@ -253,6 +261,124 @@ class KRNotificationModule : KuiklyRenderBaseModule() {
             put("payload", launch.second)
             put("action", launch.third)
         }.toString()
+    }
+
+    // ---------------- 厂商适配 / 设置引导 ----------------
+
+    private fun checkBatteryOptimization(callback: KuiklyRenderCallback?) {
+        val ignoring = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val pm = ctx.getSystemService(Context.POWER_SERVICE) as PowerManager
+            pm.isIgnoringBatteryOptimizations(ctx.packageName)
+        } else {
+            true
+        }
+        callback?.invoke(okResult(mapOf("enabled" to !ignoring)))
+    }
+
+    private fun openBatteryOptimizationSettings(callback: KuiklyRenderCallback?) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            callback?.invoke(failResult(ERROR_UNSUPPORTED, "unsupported before API 23"))
+            return
+        }
+        startFirstSettings(
+            listOf(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)),
+            callback
+        )
+    }
+
+    private fun openNotificationSettings(callback: KuiklyRenderCallback?) {
+        val intents = mutableListOf<Intent>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            intents += Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                .putExtra(Settings.EXTRA_APP_PACKAGE, ctx.packageName)
+        }
+        intents += Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", ctx.packageName, null)
+        )
+        startFirstSettings(intents, callback)
+    }
+
+    private fun openAutoStartSettings(callback: KuiklyRenderCallback?) {
+        startFirstSettings(autoStartIntents(), callback)
+    }
+
+    /** 按厂商跳「自启动 / 后台管理」；全部失败则回退应用详情页 */
+    private fun autoStartIntents(): List<Intent> {
+        val brand = Build.MANUFACTURER.lowercase()
+        val intents = mutableListOf<Intent>()
+        when {
+            brand.contains("xiaomi") -> intents += component(
+                "com.miui.securitycenter",
+                "com.miui.permcenter.autostart.AutoStartManagementActivity"
+            )
+
+            brand.contains("huawei") || brand.contains("honor") -> {
+                intents += component(
+                    "com.huawei.systemmanager",
+                    "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"
+                )
+                intents += component(
+                    "com.huawei.systemmanager",
+                    "com.huawei.systemmanager.optimize.bootstart.BootStartActivity"
+                )
+            }
+
+            brand.contains("oppo") || brand.contains("realme") || brand.contains("oneplus") -> {
+                intents += component(
+                    "com.coloros.safecenter",
+                    "com.coloros.safecenter.permission.startup.StartupAppListActivity"
+                )
+                intents += component(
+                    "com.oppo.safe",
+                    "com.oppo.safe.permission.startup.StartupAppListActivity"
+                )
+                intents += component(
+                    "com.coloros.safecenter",
+                    "com.coloros.safecenter.startupapp.StartupAppListActivity"
+                )
+            }
+
+            brand.contains("vivo") || brand.contains("iqoo") -> {
+                intents += component("com.iqoo.secure", "com.iqoo.secure.safeguard.PurviewTabActivity")
+                intents += component(
+                    "com.vivo.permissionmanager",
+                    "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"
+                )
+                intents += component(
+                    "com.iqoo.secure",
+                    "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity"
+                )
+            }
+
+            brand.contains("meizu") -> intents += component(
+                "com.meizu.safe",
+                "com.meizu.safe.permission.SmartBGActivity"
+            )
+        }
+        intents += Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", ctx.packageName, null)
+        )
+        return intents
+    }
+
+    private fun component(pkg: String, cls: String): Intent =
+        Intent().setComponent(ComponentName(pkg, cls))
+
+    /** 逐个尝试，第一个能打开的就用（Android 11+ 包可见性下 resolveActivity 不可靠，故用 try-catch） */
+    private fun startFirstSettings(intents: List<Intent>, callback: KuiklyRenderCallback?) {
+        for (intent in intents) {
+            try {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                ctx.startActivity(intent)
+                callback?.invoke(okResult())
+                return
+            } catch (t: Throwable) {
+                // 试下一个候选页
+            }
+        }
+        callback?.invoke(failResult(ERROR_INTERNAL, "no settings page available"))
     }
 
     // ---------------- 内部工具 ----------------

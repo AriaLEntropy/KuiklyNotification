@@ -76,6 +76,24 @@ class KRNotificationModule : KRNotificationBaseModule() {
 
     fun getBadge(cb: JsonResultCallback) = post("getBadge", null, cb)
 
+    // ---------------- 厂商适配 / 设置引导（Android；其他端回调 UNSUPPORTED） ----------------
+
+    /** 电池优化是否开启（true=未加入白名单）。data: {enabled: Boolean} */
+    fun isBatteryOptimizationEnabled(cb: JsonResultCallback) =
+        post("isBatteryOptimizationEnabled", null, cb)
+
+    /** 打开系统「电池优化」设置页（引导用户加入白名单） */
+    fun openBatteryOptimizationSettings(cb: JsonResultCallback) =
+        post("openBatteryOptimizationSettings", null, cb)
+
+    /** 打开厂商「自启动 / 后台管理」设置页（小米/华为/荣耀/OPPO/vivo/魅族，失败回退应用详情） */
+    fun openAutoStartSettings(cb: JsonResultCallback) =
+        post("openAutoStartSettings", null, cb)
+
+    /** 打开本应用的系统通知设置页 */
+    fun openNotificationSettings(cb: JsonResultCallback) =
+        post("openNotificationSettings", null, cb)
+
     // ---------------- 点击事件（常驻） ----------------
 
     /** 注册点击监听；后注册覆盖前一个 */

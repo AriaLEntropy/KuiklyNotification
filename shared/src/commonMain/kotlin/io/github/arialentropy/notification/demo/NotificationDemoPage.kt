@@ -154,6 +154,24 @@ internal class NotificationDemoPage : BasePager() {
                     }
                 }
 
+                demoButton("10. 电池优化是否开启") {
+                    ctx.notification.isBatteryOptimizationEnabled { result ->
+                        ctx.appendLog("batteryOptimization: code=${result.code}, ${result.data}")
+                    }
+                }
+
+                demoButton("11. 打开电池优化设置") {
+                    ctx.notification.openBatteryOptimizationSettings { result ->
+                        ctx.appendLog("openBatteryOptimizationSettings: code=${result.code}")
+                    }
+                }
+
+                demoButton("12. 打开自启动设置") {
+                    ctx.notification.openAutoStartSettings { result ->
+                        ctx.appendLog("openAutoStartSettings: code=${result.code}")
+                    }
+                }
+
                 Text {
                     attr {
                         text(ctx.logText)
