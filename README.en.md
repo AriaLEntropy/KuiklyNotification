@@ -16,58 +16,59 @@ and badges (iOS).
 
 ## Table of contents
 
-1. [What it is / is not](#1-what-it-is--is-not)
-2. [Capability matrix](#2-capability-matrix)
-3. [Getting started](#3-getting-started)
-4. [API reference](#4-api-reference)
-5. [Platform differences & limitations](#5-platform-differences--limitations)
-6. [Vendor qualifications](#6-vendor-qualifications)
-7. [Host integration checklist](#7-host-integration-checklist)
-8. [FAQ / Troubleshooting](#8-faq--troubleshooting)
-9. [Demos & verification](#9-demos--verification)
-10. [Versions, compatibility & releasing](#10-versions-compatibility--releasing)
-11. [Privacy & local data](#11-privacy--local-data)
-12. [Contributing](#12-contributing)
-13. [License / Support](#13-license--support)
+- [What this repo does](#what-this-repo-does)
+- [Platform support](#platform-support)
+- [Getting started](#getting-started)
+- [API](#api)
+- [Platform differences](#platform-differences)
+- [Vendor approvals](#vendor-approvals)
+- [Integration checklist](#integration-checklist)
+- [FAQ](#faq)
+- [Demo projects](#demo-projects)
+- [Versions](#versions)
+- [Privacy](#privacy)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-### 1. What it is / is not
+### What this repo does
 
-**It is** a Kuikly component for showing **local notifications** (initiated by the app), plus permission
-handling, channels, tap-to-open and cold-start payload.
+This repo sends local notifications on Android, iOS and HarmonyOS: posting them, requesting permission, creating
+channels (Android) / slots (HarmonyOS), sending immediately / on a schedule / repeatedly, cancelling, and bringing
+the user back to your app with the payload when they tap - including a cold start after the app was killed.
 
-**It is not**:
+Out of scope:
 
-- ❌ **It does not obtain vendor qualifications for you.** Chinese OEMs (Xiaomi/Huawei/Honor/OPPO/vivo/Meizu) and
-  HarmonyOS agent-powered reminders require qualifications the **host app must apply for**; the library only
-  provides **settings-guidance APIs** (see [§6](#6-vendor-qualifications)).
-- ❌ **No remote push.** Offline push needs vendor push channels (a separate component).
-- ❌ **No OEM badges.** Android has no unified badge API (iOS badges are supported).
-- ❌ **No encryption/rewriting** of content. Treat title/body/payload as potentially sensitive
-  (see [§11 Privacy & local data](#11-privacy--local-data)).
+- **Approvals for Chinese OEM devices are yours to get.** Each vendor limits background notifications and auto-start
+  differently, so you have to apply yourself; HarmonyOS scheduled notifications also require the app to have
+  `reminder_capability`.
+- **Messages pushed from a server (remote push).** This library only handles local notifications the app itself
+  schedules. If you need the server to push and the app to receive it while closed, you need a vendor push channel.
+- **No Android badges** (no unified API across vendors); iOS badges are supported.
+- **Content passes through untouched** - no encryption, no rewriting.
 
 ---
 
-### 2. Capability matrix
+### Platform support
 
 | Capability | Android | iOS | HarmonyOS |
 |---|---|---|---|
-| Request / check permission | ✅ | ✅ | ✅ |
-| Notification channel | ✅ adjustable importance | ❌ `UNSUPPORTED(1010)` | ⚠️ level fixed by SlotType |
-| Show / cancel / cancelAll | ✅ | ✅ | ✅ |
-| Scheduled notification | ✅ (host must declare the exact-alarm permission) | ✅ (past time errors) | ⚠️ needs qualification + lead time ≥30 s |
-| Repeating notification | ✅ | ✅ | ⚠️ `DAY` / `WEEK` only |
-| Tap-to-open (persistent listener) | ✅ | ✅ | ✅ |
-| Cold-start payload | ✅ | ✅ | ⚠️ host must inject the want |
-| Badge | ❌ | ✅ | ❌ |
-| Settings guidance | ✅ 4 APIs | ⚠️ notification settings only | ⚠️ notification settings only (API 13+) |
+| Request / check permission | Yes | Yes | Yes |
+| Notification channel | Yes adjustable importance | No `UNSUPPORTED(1010)` | level fixed by SlotType |
+| Show / cancel / cancelAll | Yes | Yes | Yes |
+| Scheduled notification | Yes (host must declare the exact-alarm permission) | Yes (past time errors) | needs qualification + lead time ≥30 s |
+| Repeating notification | Yes | Yes | `DAY` / `WEEK` only |
+| Tap-to-open (persistent listener) | Yes | Yes | Yes |
+| Cold-start payload | Yes | Yes | host must inject the want |
+| Badge | No | Yes | No |
+| Settings guidance | Yes 4 APIs | notification settings only | notification settings only (API 13+) |
 
 ---
 
-### 3. Getting started
+### Getting started
 
-#### 3.1 Platform requirements
+#### Requirements
 
 **Host app requirements**
 
@@ -92,9 +93,9 @@ handling, channels, tap-to-open and cold-start payload.
    ```
    Without it notifications still work (inexact alarms), but timing may drift.
 
-> This repo's own build versions (Kuikly / Kotlin / AGP / Gradle) are listed in [§10.1](#101-version-table).
+> This repo's own build versions (Kuikly / Kotlin / AGP / Gradle) are listed in [Version table](#version-table).
 
-#### 3.2 Adding the dependency
+#### Adding the dependency
 
 **Option A: Maven repository (recommended)**
 
@@ -146,7 +147,7 @@ pod 'KuiklyNotificationIOS', :path => '../KuiklyNotification'
 pod 'OpenKuiklyIOSRender', '~> 2.24.0'   # match your Kuikly version
 ```
 
-> ⚠️ Don't pick the wrong podspec (see [§12.2](#122-ios-two-podspecs)):
+> Note: Don't pick the wrong podspec (see [The two iOS podspecs](#the-two-ios-podspecs)):
 > - `KuiklyNotificationIOS` (repo root) → **native implementation**, what hosts normally need;
 > - `KuiklyNotification` (in `KuiklyNotification/`) → **KMP public API**, only needed by a standalone host that
 >   does *not* link a static framework already embedding the KMP layer (such as `shared`).
@@ -173,7 +174,7 @@ hvigorw assembleHar
 > If it is later published to the ohpm registry, this becomes `ohpm install kuikly-notification-ohos`
 >.
 
-#### 3.3 Common step: `configure`
+#### Configure
 
 `NotificationConfig` is injected by the **native side** through `pageData` when opening the Kuikly page; the page
 reads it and calls `configure`:
@@ -200,19 +201,19 @@ notification.configure(
 ) { result -> /* result.code == 0 means success */ }
 ```
 
-> ⚠️ **Never write `R.drawable.xxx` inside a Kuikly page**: `R` is Android-only and is not visible from
+> Note: **Never write `R.drawable.xxx` inside a Kuikly page**: `R` is Android-only and is not visible from
 > `commonMain` (shared Kotlin code) — it will not compile. Pass it from the native side via `pageData` as shown above.
 
 | Parameter | Platform | Required | Notes |
 |---|---|---|---|
-| `hostActivity` | Android | ✅ | Launcher Activity **FQCN** (tap target) |
-| `smallIconResId` | Android | ✅ | Notification small icon resource id |
-| `hostBundleName` | HarmonyOS | ✅ | App bundleName |
-| `hostAbilityName` | HarmonyOS | ✅ | Entry ability name |
+| `hostActivity` | Android | Yes | Launcher Activity **FQCN** (tap target) |
+| `smallIconResId` | Android | Yes | Notification small icon resource id |
+| `hostBundleName` | HarmonyOS | Yes | App bundleName |
+| `hostAbilityName` | HarmonyOS | Yes | Entry ability name |
 
 > iOS needs no `configure` (delegate based). Calling it on iOS is a safe no-op.
 
-#### 3.4 Minimal runnable example
+#### Minimal example
 
 ```kotlin
 import com.tencent.kuikly.core.annotations.Page
@@ -255,13 +256,13 @@ internal class MyPage : BasePager() {
 }
 ```
 
-#### 3.5 Android integration
+#### Android setup
 
 **1) Manifest permission**
 
 ```xml
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-<!-- optional: exact alarms (see §3.1) -->
+<!-- optional: exact alarms (see "Requirements") -->
 <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 ```
 
@@ -307,13 +308,13 @@ override fun registerExternalModule(kuiklyRenderExport: IKuiklyRenderExport) {
 
 > Scheduled/repeating notifications are delivered by an internal `BroadcastReceiver`; no host declaration needed.
 
-#### 3.6 iOS integration
+#### iOS setup
 
-1. Podfile → see [§3.2](#32-adding-the-dependency) (avoid duplicates, see [§12.2](#122-ios-two-podspecs)).
+1. Podfile → see [Adding the dependency](#adding-the-dependency) (avoid duplicates, see [The two iOS podspecs](#the-two-ios-podspecs)).
 2. **Do not set** `UNUserNotificationCenter.delegate` — the component sets it in `+load`.
 3. In the page's `created()`, call `getLaunchNotification()` and register `setNotificationClickListener`.
 
-#### 3.7 HarmonyOS integration
+#### HarmonyOS setup
 
 **1) `module.json5` permission**
 
@@ -334,7 +335,7 @@ getCustomRenderModuleCreatorRegisterMap(): Map<string, KRRenderModuleExportCreat
 }
 ```
 
-**3) `configure()` with `hostBundleName` + `hostAbilityName`** → see [§3.3](#33-common-step-configure).
+**3) `configure()` with `hostBundleName` + `hostAbilityName`** → see [Configure](#configure).
 
 **4) Cold start / tap**: in the entry ability's `onCreate` / `onNewWant`
 
@@ -342,10 +343,10 @@ getCustomRenderModuleCreatorRegisterMap(): Map<string, KRRenderModuleExportCreat
 this.notificationModule?.populateLaunchNotification(want.parameters);
 ```
 
-> ⚠️ The Kuikly HarmonyOS **engine** (`libkuikly.so`) is **arm64 only**; Windows / Intel Mac HarmonyOS emulators
-> are x86_64 and **cannot run Kuikly** (see [§9.3](#93-harmonyos-pure-arkts-verification-demo-only)).
+> Note: The Kuikly HarmonyOS **engine** (`libkuikly.so`) is **arm64 only**; Windows / Intel Mac HarmonyOS emulators
+> are x86_64 and **cannot run Kuikly** (see [HarmonyOS: pure-ArkTS demo only](#harmonyos-pure-arkts-demo-only)).
 
-#### 3.8 Self-check
+#### Self-check
 
 - [ ] `checkPermission` returns `NOT_DETERMINED` / `DENIED`
 - [ ] `requestPermission` shows the system dialog (Android 13+ / iOS / HarmonyOS)
@@ -355,35 +356,35 @@ this.notificationModule?.populateLaunchNotification(want.parameters);
 
 ---
 
-### 4. API reference
+### API
 
-#### 4.1 Methods
+#### Methods
 
 The module name is `KRNotificationModule` on all platforms. All methods are **asynchronous** via
 `JsonResultCallback` unless noted.
 
 | Method | Parameters | Callback `data` | Android | iOS | HarmonyOS |
 |---|---|---|---|---|---|
-| `configure(config, cb)` | `NotificationConfig` | `{}` | ✅ | ✅ (optional) | ✅ |
-| `requestPermission(cb)` | — | `{status}` | ✅ | ✅ | ✅ |
-| `checkPermission(cb)` | — | `{status}` | ✅ | ✅ | ✅ |
-| `createChannel(channelId, name, importance, cb)` | `String, String, String` | `{}` | ✅ | ❌ 1010 | ✅ |
-| `show(request, cb)` | `NotificationRequest` | `{}` | ✅ | ✅ | ✅ |
-| `scheduleAt(request, timestampMs, cb)` | `+Long` | `{}` | ✅ | ✅ | ⚠️ |
-| `showPeriodically(request, interval, cb)` | `+String` | `{}` | ✅ | ✅ | ⚠️ |
-| `cancel(id, cb)` | `Int` | `{}` | ✅ | ✅ | ✅ |
-| `cancelAll(cb)` | — | `{}` | ✅ | ✅ | ✅ |
-| `setBadge(count, cb)` | `Int` | `{}` | ❌ 1010 | ✅ | ❌ 1010 |
-| `getBadge(cb)` | — | `{count}` | ❌ 1010 | ✅ | ❌ 1010 |
-| `isBatteryOptimizationEnabled(cb)` | — | `{enabled}` | ✅ | ❌ 1010 | ❌ 1010 |
-| `openBatteryOptimizationSettings(cb)` | — | `{}` | ✅ | ❌ 1010 | ❌ 1010 |
-| `openAutoStartSettings(cb)` | — | `{}` | ✅ | ❌ 1010 | ❌ 1010 |
-| `openNotificationSettings(cb)` | — | `{}` | ✅ | ✅ | ✅ (API 13+) |
-| `setNotificationClickListener(listener)` | `(NotificationClickEvent) -> Unit` | tap events | ✅ | ✅ | ✅ |
-| `removeNotificationClickListener()` | — | — | ✅ | ✅ | ✅ |
-| `getLaunchNotification()` | — | **synchronous** `NotificationClickEvent?` | ✅ | ✅ | ✅ |
+| `configure(config, cb)` | `NotificationConfig` | `{}` | Yes | Yes (optional) | Yes |
+| `requestPermission(cb)` | — | `{status}` | Yes | Yes | Yes |
+| `checkPermission(cb)` | — | `{status}` | Yes | Yes | Yes |
+| `createChannel(channelId, name, importance, cb)` | `String, String, String` | `{}` | Yes | No (1010) | Yes |
+| `show(request, cb)` | `NotificationRequest` | `{}` | Yes | Yes | Yes |
+| `scheduleAt(request, timestampMs, cb)` | `+Long` | `{}` | Yes | Yes | Limited |
+| `showPeriodically(request, interval, cb)` | `+String` | `{}` | Yes | Yes | Limited |
+| `cancel(id, cb)` | `Int` | `{}` | Yes | Yes | Yes |
+| `cancelAll(cb)` | — | `{}` | Yes | Yes | Yes |
+| `setBadge(count, cb)` | `Int` | `{}` | No (1010) | Yes | No (1010) |
+| `getBadge(cb)` | — | `{count}` | No (1010) | Yes | No (1010) |
+| `isBatteryOptimizationEnabled(cb)` | — | `{enabled}` | Yes | No (1010) | No 1010 |
+| `openBatteryOptimizationSettings(cb)` | — | `{}` | Yes | No (1010) | No 1010 |
+| `openAutoStartSettings(cb)` | — | `{}` | Yes | No (1010) | No 1010 |
+| `openNotificationSettings(cb)` | — | `{}` | Yes | Yes | Yes (API 13+) |
+| `setNotificationClickListener(listener)` | `(NotificationClickEvent) -> Unit` | tap events | Yes | Yes | Yes |
+| `removeNotificationClickListener()` | — | — | Yes | Yes | Yes |
+| `getLaunchNotification()` | — | **synchronous** `NotificationClickEvent?` | Yes | Yes | Yes |
 
-#### 4.2 Data models
+#### Data models
 
 **`NotificationConfig`**: `hostActivity`(Android) / `smallIconResId`(Android) / `hostBundleName`(HarmonyOS) / `hostAbilityName`(HarmonyOS)
 
@@ -410,18 +411,18 @@ NotificationConst.Interval          // MINUTE / HOUR / HALF_DAY / DAY / WEEK
 NotificationConst.PermissionStatus  // GRANTED / DENIED / NOT_DETERMINED / ERROR
 ```
 
-#### 4.3 Callback format
+#### Callback format
 
 ```json
 { "code": 0, "msg": "", "data": { } }
 ```
 
-- `code == 0` means success; otherwise see [§4.4](#44-error-codes)
-- `data` shapes are listed in [§4.1](#41-methods); most methods return `{}`
+- `code == 0` means success; otherwise see [Error codes](#error-codes)
+- `data` shapes are listed in [Methods](#methods); most methods return `{}`
 - **`checkPermission` reports the status in `data.status`** (`GRANTED` / `DENIED` / `NOT_DETERMINED`), **not** via `code`
 - `getLaunchNotification()` is **synchronous** and returns `NotificationClickEvent?` — not a `JsonResult`
 
-#### 4.4 Error codes
+#### Error codes
 
 | code | Constant | Status | Meaning / common cause |
 |---|---|---|---|
@@ -442,16 +443,16 @@ NotificationConst.PermissionStatus  // GRANTED / DENIED / NOT_DETERMINED / ERROR
 
 ---
 
-### 5. Platform differences & limitations
+### Platform differences
 
 | Aspect | Android | iOS | HarmonyOS |
 |---|---|---|---|
-| Request permission | **<13: no runtime permission, returns `GRANTED` without dialog**; on 13+ the dialog requires host `targetSdk ≥ 33` (see [§3.1](#31-platform-requirements)); **never again after denial** | dialog on first call; after denial go to Settings | dialog on first call; after denial `requestEnableNotification` no longer shows; use Settings |
+| Request permission | **<13: no runtime permission, returns `GRANTED` without dialog**; on 13+ the dialog requires host `targetSdk ≥ 33` (see [Requirements](#requirements)); **never again after denial** | dialog on first call; after denial go to Settings | dialog on first call; after denial `requestEnableNotification` no longer shows; use Settings |
 | Channels | `NotificationChannel` with adjustable importance; **immutable after creation**; the component falls back to `default` (auto-created if missing) | no channels → `1010` | `addSlot(type)`, **level fixed by type**: `HIGH→SOCIAL_COMMUNICATION`, `DEFAULT→SERVICE_INFORMATION`, `LOW/MIN→CONTENT_INFORMATION` |
 | Heads-up | **`IMPORTANCE_HIGH` channels only**; an existing low-importance channel cannot be upgraded — use a new `channelId` | system policy + `showWhenInForeground` | needs a `LEVEL_HIGH` channel **and** the system "banner" toggle (off by default) |
 | Scheduled | `AlarmManager`; exact requires the host to declare `SCHEDULE_EXACT_ALARM` | `UNCalendarNotificationTrigger`; **past time → `1006`** | agent reminder; **needs `reminder_capability`** and **lead time ≥30 s** |
 | Repeating | `setRepeating` | `UNTimeIntervalNotificationTrigger(repeats: true)` | `DAY`/`WEEK` only; others → `1007` |
-| Badge | ❌ | ✅ (16+ `setBadgeCount`; ≤15 `applicationIconBadgeNumber`) | ❌ |
+| Badge | No | Yes (16+ `setBadgeCount`; ≤15 `applicationIconBadgeNumber`) | No |
 | Foreground detection | `ProcessLifecycleOwner` | `willPresent` options | `applicationStateManager` |
 | Cold-start payload | `KRNotificationLaunch.onNewIntent()` | cached by the delegate | host calls `populateLaunchNotification(want.parameters)` |
 | Settings guidance | all 4 APIs | `openNotificationSettings` only | `openNotificationSettings` only (API 13+) |
@@ -460,20 +461,20 @@ NotificationConst.PermissionStatus  // GRANTED / DENIED / NOT_DETERMINED / ERROR
 
 ---
 
-### 6. Vendor qualifications
+### Vendor approvals
 
 > **The library does not obtain qualifications for you.** The host app must apply/configure the items below.
 > Vendor portals change frequently — **refer to the official, latest documentation**.
 
-#### 6.1 Android
+#### Android apps
 
-| Item | Owner | Symptom if missing | Where to look |
+| Item | What happens if missing | How to fix |
 |---|---|---|---|
-| Xiaomi "post local notifications in background" whitelist | Host | background local notifications are **not shown** | Xiaomi Open Platform (`dev.mi.com`); or switch to Xiaomi Push |
-| Huawei / Honor "message self-classification" entitlement | Host | notifications throttled as marketing | Huawei AppGallery Connect (`developer.huawei.com`) → app → message classification |
-| Auto-start / background whitelist | Host + user | scheduled/repeating notifications **do not fire** after the app is killed | the library exposes `openAutoStartSettings()` |
-| Exact alarm `SCHEDULE_EXACT_ALARM` | Host | `scheduleAt` inaccurate | declare it in the host manifest (see [§3.1](#31-platform-requirements)); check Google Play policy |
-| Battery optimization whitelist | Host + user | background restricted | `isBatteryOptimizationEnabled()` / `openBatteryOptimizationSettings()` |
+| Xiaomi "post local notifications in background" whitelist | background local notifications are **not shown** | Xiaomi Open Platform (`dev.mi.com`); or switch to Xiaomi Push |
+| Huawei / Honor "message self-classification" entitlement | notifications throttled as marketing | Huawei AppGallery Connect (`developer.huawei.com`) → app → message classification |
+| Auto-start / background whitelist | scheduled/repeating notifications **do not fire** after the app is killed | the library exposes `openAutoStartSettings()` |
+| Exact alarm `SCHEDULE_EXACT_ALARM` | `scheduleAt` inaccurate | declare it in the host manifest (see [Requirements](#requirements)); check Google Play policy |
+| Battery optimization whitelist | background restricted | `isBatteryOptimizationEnabled()` / `openBatteryOptimizationSettings()` |
 
 ```kotlin
 notification.isBatteryOptimizationEnabled { r -> /* r.data: {"enabled": true} = optimization on (not whitelisted) */ }
@@ -482,21 +483,21 @@ notification.openAutoStartSettings { }   // Xiaomi/Huawei/Honor/OPPO/vivo/Meizu;
 notification.openNotificationSettings { }
 ```
 
-#### 6.2 HarmonyOS
+#### HarmonyOS apps
 
-| Item | Owner | Symptom if missing | Where to look |
+| Item | What happens if missing | How to fix |
 |---|---|---|---|
-| Agent reminder `reminder_capability` | Host | `publishReminder` returns **`1700002`** (quota 0) | Huawei AppGallery Connect (`developer.huawei.com`) → app → agent reminder capability |
-| System "banner notification" toggle | User (guide them) | only in the tray, **no heads-up** | `Settings → Notifications → this app → alert style → banner`; the library exposes `openNotificationSettings()` |
+| Agent reminder `reminder_capability` | `publishReminder` returns **`1700002`** (quota 0) | Huawei AppGallery Connect (`developer.huawei.com`) → app → agent reminder capability |
+| System "banner notification" toggle | only in the tray, **no heads-up** | `Settings → Notifications → this app → alert style → banner`; the library exposes `openNotificationSettings()` |
 
-#### 6.3 Others
+#### Others
 
 - **iOS**: no vendor qualification; the system prompts for permission.
 - **Google Play**: `SCHEDULE_EXACT_ALARM` is a sensitive permission — verify policy compliance before release.
 
 ---
 
-### 7. Host integration checklist
+### Integration checklist
 
 #### Android
 
@@ -507,7 +508,7 @@ notification.openNotificationSettings { }
 - [ ] Kuikly page `createExternalModules()` registers **`...notification.module.KRNotificationModule`**
 - [ ] Native side injects `hostActivity` / `smallIconResId` via `pageData`; page calls `configure()`
 - [ ] For heads-up: create an `IMPORTANCE_HIGH` channel first
-- [ ] Chinese OEMs: apply for / guide users through vendor whitelists ([§6.1](#61-android))
+- [ ] Chinese OEMs: apply for / guide users through vendor whitelists ([Android apps](#android-apps))
 
 #### iOS
 
@@ -524,7 +525,7 @@ notification.openNotificationSettings { }
 - [ ] Call `populateLaunchNotification(want.parameters)` in the entry ability
 - [ ] Scheduled/repeating: obtain `reminder_capability`; lead time ≥30 s
 - [ ] Heads-up: guide the user to enable the system "banner" toggle
-- [ ] **Verify on a real device** (arm64; see [§9.3](#93-harmonyos-pure-arkts-verification-demo-only))
+- [ ] **Verify on a real device** (arm64; see [HarmonyOS: pure-ArkTS demo only](#harmonyos-pure-arkts-demo-only))
 
 #### Real-device checklist (all platforms)
 
@@ -536,14 +537,14 @@ notification.openNotificationSettings { }
 
 ---
 
-### 8. FAQ / Troubleshooting
+### FAQ
 
 **Q: `show()` runs but nothing appears.**
 1. Is `checkPermission()`'s `data.status` `GRANTED`?
 2. Android: a wrong `channelId` is not fatal — the component falls back to the `default` channel (auto-created);
    but heads-up requires an `IMPORTANCE_HIGH` channel.
-3. Chinese OEMs: vendor controls may block background local notifications → [§6.1](#61-android)
-4. HarmonyOS heads-up: the system "banner" toggle is off by default → [§6.2](#62-harmonyos)
+3. Chinese OEMs: vendor controls may block background local notifications → [Android apps](#android-apps)
+4. HarmonyOS heads-up: the system "banner" toggle is off by default → [HarmonyOS apps](#harmonyos-apps)
 5. Is the app foreground? `showWhenInForeground` defaults to `false`.
 
 **Q: `scheduleAt` never fires.**
@@ -564,16 +565,16 @@ notification.openNotificationSettings { }
 **Q: `createChannel` returns `1010`.** Called on iOS. iOS has no channels — expected.
 
 **Q: My IDE can't find / imports the wrong `KRNotificationModule`.** There are two same-named classes — see
-[§3.5 step 4](#35-android-integration).
+[Android setup](#android-setup) step 4.
 
-**Q: It fails to run on a HarmonyOS emulator.** See [§9.3](#93-harmonyos-pure-arkts-verification-demo-only):
+**Q: It fails to run on a HarmonyOS emulator.** See [HarmonyOS: pure-ArkTS demo only](#harmonyos-pure-arkts-demo-only):
 **the Kuikly engine is arm64 only**.
 
 ---
 
-### 9. Demos & verification
+### Demo projects
 
-#### 9.1 Android (builds on Windows / macOS / Linux)
+#### Android
 
 ```bash
 ./gradlew :androidApp:assembleDebug
@@ -581,11 +582,11 @@ notification.openNotificationSettings { }
 adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
 ```
 
-#### 9.2 iOS (macOS + Xcode required)
+#### iOS
 
 See [`iosApp/README.md`](iosApp/README.md): create the host project → configure the Podfile → `pod install`.
 
-#### 9.3 HarmonyOS: pure-ArkTS verification demo only
+#### HarmonyOS: pure-ArkTS demo only
 
 The Kuikly HarmonyOS render engine `libkuikly.so` is **arm64 only** (verified 2026-09: the `@kuikly-open/render`
 2.28.0 package on ohpm still ships only `libs/arm64-v8a/`, and the Maven `-ohos` artifacts only expose the
@@ -594,9 +595,9 @@ The Kuikly HarmonyOS render engine `libkuikly.so` is **arm64 only** (verified 20
 
 | Device | ABI | Runs Kuikly |
 |---|---|---|
-| Windows / Intel Mac HarmonyOS emulator | x86_64 | ❌ |
-| Apple Silicon Mac HarmonyOS emulator | arm64 | ✅ |
-| HarmonyOS phone | arm64 | ✅ |
+| Windows / Intel Mac HarmonyOS emulator | x86_64 | No |
+| Apple Silicon Mac HarmonyOS emulator | arm64 | Yes |
+| HarmonyOS phone | arm64 | Yes |
 
 This repo therefore also ships **`ohosApp/entry` (a pure-ArkTS verification demo)** with no native libraries,
 runnable on an x86_64 emulator to verify HarmonyOS notification APIs (permission / channel / immediate / heads-up /
@@ -610,9 +611,9 @@ hdc install -r entry/build/default/outputs/default/entry-default-unsigned.hap
 
 ---
 
-### 10. Versions, compatibility & releasing
+### Versions
 
-#### 10.1 Version table
+#### Version table
 
 | Item | Value |
 |---|---|
@@ -628,7 +629,7 @@ Versions live in [`buildSrc/src/main/java/KotlinBuildVar.kt`](buildSrc/src/main/
 
 **Semantic versioning**: this project follows [SemVer](https://semver.org/). See [`CHANGELOG.md`](CHANGELOG.md).
 
-#### 10.2 HarmonyOS artifact build (separate toolchain)
+#### HarmonyOS artifact build
 
 HarmonyOS artifacts require Tencent's custom Kotlin toolchain (upstream Kotlin has no `ohosArm64`), and Kuikly
 artifacts need the `-ohos` suffix — hence a **separate settings file**:
@@ -644,7 +645,7 @@ export OHOS_SDK_HOME="/path/to/DevEco Studio/sdk/default/openharmony"
 
 ---
 
-### 11. Privacy & local data
+### Privacy
 
 The component **collects and reports nothing**, and does not encrypt/rewrite content. It does persist a small
 amount of state on device (Android implementation, in `SharedPreferences` named `kr_notification`):
@@ -656,15 +657,15 @@ amount of state on device (Android implementation, in `SharedPreferences` named 
 | `launch_id` / `launch_payload` / `launch_action` | **cold-start payload (plaintext)** | cleared once `getLaunchNotification()` consumes it |
 | `scheduled_ids` | scheduled notification ids (for `cancelAll`) | cleared on cancel |
 
-> ⚠️ `payload` is written to disk **in plaintext** until consumed. If it contains sensitive data, redact it in
+> Note: `payload` is written to disk **in plaintext** until consumed. If it contains sensitive data, redact it in
 > your business layer or use a short-lived reference id instead.
 > The iOS / HarmonyOS implementations do not persist the payload (it travels via the system delegate / want).
 
 ---
 
-### 12. Contributing
+### Contributing
 
-#### 12.1 Project layout
+#### Layout
 
 ```
 KuiklyNotification/            Kuikly side (KMP): module, models, constants, error codes
@@ -677,7 +678,7 @@ buildSrc/                      versions, coordinates, POM metadata, publish repo
 maven-repo/                    published Maven artifacts (push to gh-pages to serve publicly)
 ```
 
-#### 12.2 iOS: two podspecs
+#### The two iOS podspecs
 
 | podspec | Location | Purpose |
 |---|---|---|
@@ -686,7 +687,7 @@ maven-repo/                    published Maven artifacts (push to gh-pages to se
 
 > Adding both produces a large number of **duplicate symbols** at link time (>15k observed). Always pick one.
 
-#### 12.3 Build locally
+#### Building locally
 
 ```bash
 ./gradlew :androidApp:assembleDebug                       # Android (any OS)
@@ -700,32 +701,32 @@ cd ohosApp && hvigorw assembleHar                          # HarmonyOS HAR
 ./gradlew -c settings.ohos.gradle.kts :shared:linkSharedDebugSharedOhosArm64   # HarmonyOS KN artifact
 ```
 
-#### 12.4 Adding a capability
+#### Adding a capability
 
 1. Add the method on the Kuikly side (`KuiklyNotification/src/commonMain`; `KRNotificationModule` is a concrete class)
 2. Implement on all three platforms (`KRNotificationModule`(Android) / `.m`(iOS, selector dispatch) / `.ets`(HarmonyOS, `call()`)
 3. **Uniform reply**: `{"code","msg","data"}`, reuse `NotificationConst.ErrorCode`
 4. Unsupported platforms **must** reply `UNSUPPORTED(1010)` — never fail silently
-5. Register platform differences in [§5](#5-platform-differences--limitations)
+5. Register platform differences in [Platform differences](#platform-differences)
 6. **Update both languages of this README** and add a [`CHANGELOG.md`](CHANGELOG.md) entry
 
-#### 12.5 Commit conventions
+#### Commit conventions
 
 - One concern per commit; verify locally whenever it compiles
 - Conventional commits: `feat(android):` / `fix(ohos):` / `docs:` / `style(demo):`
 - Public API changes require updating both languages of this README and the CHANGELOG
 
-#### 12.6 Tests
+#### Tests
 
 `KuiklyNotification` reserves `commonTest` (Kotlin Test). Verification is currently driven by the three demos plus
-real-device testing (see [§9](#9-demos--verification)). More details in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+real-device testing (see [Demo projects](#demo-projects)). More details in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ---
 
-### 13. License / Support
+### License
 
 - Repository: <https://github.com/AriaLEntropy/KuiklyNotification>
 - Issues: <https://github.com/AriaLEntropy/KuiklyNotification/issues>
 - License: Apache-2.0
 
-[⬆ Back to top](#kuiklynotification) · [中文](README.md)
+[Back to top](#kuiklynotification) · [中文](README.md)

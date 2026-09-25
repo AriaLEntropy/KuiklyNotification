@@ -14,54 +14,54 @@
 
 ## 目录
 
-1. [这是什么 / 不是什么](#1-这是什么--不是什么)
-2. [能力矩阵](#2-能力矩阵)
-3. [快速开始](#3-快速开始)
-4. [API 参考](#4-api-参考)
-5. [平台差异与已知限制](#5-平台差异与已知限制)
-6. [厂商资质与自办清单](#6-厂商资质与自办清单含指引)
-7. [宿主接入 Checklist](#7-宿主接入-checklist)
-8. [FAQ / 排障](#8-faq--排障)
-9. [Demo 与验证](#9-demo-与验证)
-10. [版本、兼容性与发布](#10-版本兼容性与发布)
-11. [隐私与本地数据](#11-隐私与本地数据)
-12. [贡献指南](#12-贡献指南)
-13. [License / 支持](#13-license--支持)
+- [仓库职责](#仓库职责)
+- [支持情况](#支持情况)
+- [快速开始](#快速开始)
+- [API](#api)
+- [三端差异与限制](#三端差异与限制)
+- [厂商资质要自己申请](#厂商资质要自己申请)
+- [接入检查清单](#接入检查清单)
+- [常见问题](#常见问题)
+- [示例工程](#示例工程)
+- [版本与兼容](#版本与兼容)
+- [隐私与本地数据](#隐私与本地数据)
+- [参与开发](#参与开发)
+- [License 与支持](#license-与支持)
 
 ---
 
-### 1. 这是什么 / 不是什么
+### 仓库职责
 
-**是**：一个 Kuikly 组件，用于展示**本地通知**（App 自己发起），并处理权限、渠道、点击回跳与冷启动。
+本仓库负责在 Android、iOS、鸿蒙上发本地通知：弹通知、申请权限、建渠道（Android）/ 建 Slot（鸿蒙）、立即发 / 定时发 / 重复发、取消、点通知回到 App 并带上 payload、App 被杀后的冷启动取回。
 
-**不是**：
+下面这些不在本仓库范围内：
 
-- ❌ **不代办任何厂商资质**。国内 ROM（小米/华为/荣耀/OPPO/vivo/魅族）与鸿蒙代理提醒的资质、白名单、参数由**宿主自行申请**；库只提供**设置引导 API**（见 [§6](#6-厂商资质与自办清单含指引)）。
-- ❌ **不做远程推送**。离线推送需要厂商推送通道，属于另一个组件。
-- ❌ **不做厂商角标**。Android 无统一角标 API（iOS 角标本组件支持）。
-- ❌ **不加密、不改写**通知内容。标题/正文/payload 可能敏感，请自行评估（另见 [§11 隐私与本地数据](#11-隐私与本地数据)）。
+- **国内厂商机型需要另外申请资质。** 各厂商对后台通知、自启动的限制不一样，需要你自己去申请；鸿蒙的定时通知还要求应用具备 `reminder_capability`。
+- **不管"服务器推过来的消息"（远程推送）。** 本库只管 App 自己发起的本地通知，比如"你设的提醒到点了"。如果是服务端主动推消息、App 没打开也能收到，需要接厂商推送通道。
+- **Android 角标不做**（各厂商没有统一接口）；iOS 角标是支持的。
+- **通知内容原样透传**，没有进行加密改写。
 
 ---
 
-### 2. 能力矩阵
+### 支持情况
 
 | 能力 | Android | iOS | 鸿蒙 |
 |---|---|---|---|
-| 申请 / 查询通知权限 | ✅ | ✅ | ✅ |
-| 通知渠道 | ✅ 重要性可调 | ❌ `UNSUPPORTED(1010)` | ⚠️ 等级由 SlotType 固定 |
-| 立即发送 / 取消 / 取消全部 | ✅ | ✅ | ✅ |
-| 定时通知 | ✅（精确闹钟需宿主声明权限） | ✅（过去时间报错） | ⚠️ 需资质 + 提前量 ≥30 秒 |
-| 重复通知 | ✅ | ✅ | ⚠️ 仅 `DAY` / `WEEK` |
-| 点击回跳（常驻监听） | ✅ | ✅ | ✅ |
-| 冷启动取 payload | ✅ | ✅ | ⚠️ 由宿主注入 want |
-| 角标 | ❌ | ✅ | ❌ |
-| 设置引导 | ✅ 4 个接口 | ⚠️ 仅通知设置 | ⚠️ 仅通知设置（API 13+） |
+| 申请 / 查询通知权限 | 支持 | 支持 | 支持 |
+| 通知渠道 | 支持，重要性可调 | 不支持 `UNSUPPORTED(1010)` | 等级由 SlotType 固定 |
+| 立即发送 / 取消 / 取消全部 | 支持 | 支持 | 支持 |
+| 定时通知 | 支持（精确闹钟需宿主声明权限） | 支持（过去时间报错） | 需资质 + 提前量 ≥30 秒 |
+| 重复通知 | 支持 | 支持 | 仅 `DAY` / `WEEK` |
+| 点击回跳（常驻监听） | 支持 | 支持 | 支持 |
+| 冷启动取 payload | 支持 | 支持 | 由宿主注入 want |
+| 角标 | 不支持 | 支持 | 不支持 |
+| 设置引导 | 提供 4 个接口 | 仅通知设置 | 仅通知设置（API 13+） |
 
 ---
 
-### 3. 快速开始
+### 快速开始
 
-#### 3.1 环境要求
+#### 环境要求
 
 **宿主工程要求**
 
@@ -85,9 +85,9 @@
    ```
    不声明也能用（走非精确闹钟），但触发时间可能不准。
 
-> 本仓库自身的构建版本（Kuikly / Kotlin / AGP / Gradle）见 [§10.1](#101-版本表)。
+> 本仓库自身的构建版本（Kuikly / Kotlin / AGP / Gradle）见 [版本表](#版本表)。
 
-#### 3.2 引入依赖
+#### 引入依赖
 
 **方式 A：Maven 仓库（推荐）**
 
@@ -139,7 +139,7 @@ pod 'KuiklyNotificationIOS', :path => '../KuiklyNotification'
 pod 'OpenKuiklyIOSRender', '~> 2.24.0'   # Kuikly iOS 渲染库，版本与宿主 Kuikly 一致
 ```
 
-> ⚠️ 两个同名 podspec 别引错（见 [§12.2](#122-ios-两个-podspec)）：
+> 注意：两个同名 podspec 别引错（见 [iOS 的两个 podspec](#ios-的两个-podspec)）：
 > - `KuiklyNotificationIOS`（仓库根）→ **原生实现**，宿主统一引这个；
 > - `KuiklyNotification`（`KuiklyNotification/` 目录）→ **KMP 公共 API**，仅在"独立宿主、不含 `shared` 这类已内嵌 KMP 层的静态 framework"时才需要。
 
@@ -165,7 +165,7 @@ hvigorw assembleHar
 
 > 未来若发布到 ohpm 公共仓，即可改为 `ohpm install kuikly-notification-ohos`。
 
-#### 3.3 通用第一步：`configure`
+#### 配置入口 configure
 
 `NotificationConfig` 由**原生侧**在打开 Kuikly 页面时通过 `pageData` 注入，Kuikly 页面读取后再 `configure`：
 
@@ -191,18 +191,18 @@ notification.configure(
 ) { result -> /* result.code == 0 表示成功 */ }
 ```
 
-> ⚠️ **不要在 Kuikly 页面里写 `R.drawable.xxx`**：`R` 是 Android 专有符号，commonMain（跨端公共代码）访问不到，会编译失败。必须由原生侧经 `pageData` 传入（如上面 ①）。
+> 注意：**不要在 Kuikly 页面里写 `R.drawable.xxx`**：`R` 是 Android 专有符号，commonMain（跨端公共代码）访问不到，会编译失败。必须由原生侧经 `pageData` 传入（如上面 ①）。
 
 | 参数 | 端 | 必填 | 说明 |
 |---|---|---|---|
-| `hostActivity` | Android | ✅ | 入口 Activity **全限定类名**（点击通知的回跳目标） |
-| `smallIconResId` | Android | ✅ | 通知小图标资源 id |
-| `hostBundleName` | 鸿蒙 | ✅ | 应用 bundleName |
-| `hostAbilityName` | 鸿蒙 | ✅ | 入口 AbilityName |
+| `hostActivity` | Android | 必填 | 入口 Activity **全限定类名**（点击通知的回跳目标） |
+| `smallIconResId` | Android | 必填 | 通知小图标资源 id |
+| `hostBundleName` | 鸿蒙 | 必填 | 应用 bundleName |
+| `hostAbilityName` | 鸿蒙 | 必填 | 入口 AbilityName |
 
 > iOS 无需 `configure`（delegate 机制）。在 iOS 上调用是安全空实现。
 
-#### 3.4 最小可运行示例
+#### 最小可运行示例
 
 ```kotlin
 import com.tencent.kuikly.core.annotations.Page
@@ -249,13 +249,13 @@ internal class MyPage : BasePager() {
 }
 ```
 
-#### 3.5 Android 接入
+#### Android 接入
 
 **1）Manifest 声明权限**
 
 ```xml
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-<!-- 可选：精确闹钟（见 §3.1） -->
+<!-- 可选：精确闹钟（见「环境要求」） -->
 <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 ```
 
@@ -301,13 +301,13 @@ override fun registerExternalModule(kuiklyRenderExport: IKuiklyRenderExport) {
 
 > 定时/重复通知到点由组件内置 `BroadcastReceiver` 弹出，宿主无需声明。
 
-#### 3.6 iOS 接入
+#### iOS 接入
 
-1. Podfile → 见 [§3.2](#32-引入依赖)（注意别重复引，见 [§12.2](#122-ios-两个-podspec)）。
+1. Podfile → 见 [引入依赖](#引入依赖)（注意别重复引，见 [iOS 的两个 podspec](#ios-的两个-podspec)）。
 2. **不要重复设置** `UNUserNotificationCenter.delegate`：组件在 `+load` 阶段自动设置。
 3. 页面 `created()` 里取 `getLaunchNotification()` 与注册 `setNotificationClickListener`。
 
-#### 3.7 鸿蒙接入
+#### 鸿蒙接入
 
 **1）`module.json5` 声明权限**
 
@@ -328,7 +328,7 @@ getCustomRenderModuleCreatorRegisterMap(): Map<string, KRRenderModuleExportCreat
 }
 ```
 
-**3）`configure()` 传 `hostBundleName` + `hostAbilityName`** → 见 [§3.3](#33-通用第一步configure)。
+**3）`configure()` 传 `hostBundleName` + `hostAbilityName`** → 见 [配置入口 configure](#配置入口-configure)。
 
 **4）冷启动 / 点击回跳**：入口 Ability 的 `onCreate` / `onNewWant`
 
@@ -336,9 +336,9 @@ getCustomRenderModuleCreatorRegisterMap(): Map<string, KRRenderModuleExportCreat
 this.notificationModule?.populateLaunchNotification(want.parameters);
 ```
 
-> ⚠️ Kuikly 鸿蒙**引擎**（`libkuikly.so`）只有 **arm64** 版本；Windows / Intel Mac 的鸿蒙模拟器是 x86_64，**跑不了 Kuikly**（见 [§9.3](#93-鸿蒙只能跑纯-arkts-验证-demo)）。
+> 注意：Kuikly 鸿蒙**引擎**（`libkuikly.so`）只有 **arm64** 版本；Windows / Intel Mac 的鸿蒙模拟器是 x86_64，**跑不了 Kuikly**（见 [鸿蒙只能跑纯 ArkTS 验证 Demo](#鸿蒙只能跑纯-arkts-验证-demo)）。
 
-#### 3.8 自检
+#### 自检
 
 - [ ] `checkPermission` 返回 `NOT_DETERMINED` / `DENIED`
 - [ ] `requestPermission` 弹出系统授权框（Android 13+ / iOS / 鸿蒙）
@@ -348,34 +348,34 @@ this.notificationModule?.populateLaunchNotification(want.parameters);
 
 ---
 
-### 4. API 参考
+### API
 
-#### 4.1 方法总表
+#### 方法总表
 
 Module 名固定为 `KRNotificationModule`（三端一致）。除特别说明外均为**异步**，通过 `JsonResultCallback` 回包。
 
 | 方法 | 入参 | 回调 `data` | Android | iOS | 鸿蒙 |
 |---|---|---|---|---|---|
-| `configure(config, cb)` | `NotificationConfig` | `{}` | ✅ | ✅（可省） | ✅ |
-| `requestPermission(cb)` | — | `{status}` | ✅ | ✅ | ✅ |
-| `checkPermission(cb)` | — | `{status}` | ✅ | ✅ | ✅ |
-| `createChannel(channelId, name, importance, cb)` | `String, String, String` | `{}` | ✅ | ❌ 1010 | ✅ |
-| `show(request, cb)` | `NotificationRequest` | `{}` | ✅ | ✅ | ✅ |
-| `scheduleAt(request, timestampMs, cb)` | `+Long` | `{}` | ✅ | ✅ | ⚠️ |
-| `showPeriodically(request, interval, cb)` | `+String` | `{}` | ✅ | ✅ | ⚠️ |
-| `cancel(id, cb)` | `Int` | `{}` | ✅ | ✅ | ✅ |
-| `cancelAll(cb)` | — | `{}` | ✅ | ✅ | ✅ |
-| `setBadge(count, cb)` | `Int` | `{}` | ❌ 1010 | ✅ | ❌ 1010 |
-| `getBadge(cb)` | — | `{count}` | ❌ 1010 | ✅ | ❌ 1010 |
-| `isBatteryOptimizationEnabled(cb)` | — | `{enabled}` | ✅ | ❌ 1010 | ❌ 1010 |
-| `openBatteryOptimizationSettings(cb)` | — | `{}` | ✅ | ❌ 1010 | ❌ 1010 |
-| `openAutoStartSettings(cb)` | — | `{}` | ✅ | ❌ 1010 | ❌ 1010 |
-| `openNotificationSettings(cb)` | — | `{}` | ✅ | ✅ | ✅（API 13+） |
-| `setNotificationClickListener(listener)` | `(NotificationClickEvent) -> Unit` | 点击事件 | ✅ | ✅ | ✅ |
-| `removeNotificationClickListener()` | — | — | ✅ | ✅ | ✅ |
-| `getLaunchNotification()` | — | **同步**返回 `NotificationClickEvent?` | ✅ | ✅ | ✅ |
+| `configure(config, cb)` | `NotificationConfig` | `{}` | 支持 | 支持（可省） | 支持 |
+| `requestPermission(cb)` | — | `{status}` | 支持 | 支持 | 支持 |
+| `checkPermission(cb)` | — | `{status}` | 支持 | 支持 | 支持 |
+| `createChannel(channelId, name, importance, cb)` | `String, String, String` | `{}` | 支持 | 不支持（1010） | 支持 |
+| `show(request, cb)` | `NotificationRequest` | `{}` | 支持 | 支持 | 支持 |
+| `scheduleAt(request, timestampMs, cb)` | `+Long` | `{}` | 支持 | 支持 | 受限 |
+| `showPeriodically(request, interval, cb)` | `+String` | `{}` | 支持 | 支持 | 受限 |
+| `cancel(id, cb)` | `Int` | `{}` | 支持 | 支持 | 支持 |
+| `cancelAll(cb)` | — | `{}` | 支持 | 支持 | 支持 |
+| `setBadge(count, cb)` | `Int` | `{}` | 不支持（1010） | 支持 | 不支持（1010） |
+| `getBadge(cb)` | — | `{count}` | 不支持（1010） | 支持 | 不支持（1010） |
+| `isBatteryOptimizationEnabled(cb)` | — | `{enabled}` | 支持 | 不支持（1010） | 不支持 1010 |
+| `openBatteryOptimizationSettings(cb)` | — | `{}` | 支持 | 不支持（1010） | 不支持 1010 |
+| `openAutoStartSettings(cb)` | — | `{}` | 支持 | 不支持（1010） | 不支持 1010 |
+| `openNotificationSettings(cb)` | — | `{}` | 支持 | 支持 | 支持（API 13+） |
+| `setNotificationClickListener(listener)` | `(NotificationClickEvent) -> Unit` | 点击事件 | 支持 | 支持 | 支持 |
+| `removeNotificationClickListener()` | — | — | 支持 | 支持 | 支持 |
+| `getLaunchNotification()` | — | **同步**返回 `NotificationClickEvent?` | 支持 | 支持 | 支持 |
 
-#### 4.2 数据模型
+#### 数据模型
 
 **`NotificationConfig`**：`hostActivity`(Android) / `smallIconResId`(Android) / `hostBundleName`(鸿蒙) / `hostAbilityName`(鸿蒙)
 
@@ -402,18 +402,18 @@ NotificationConst.Interval          // MINUTE / HOUR / HALF_DAY / DAY / WEEK
 NotificationConst.PermissionStatus  // GRANTED / DENIED / NOT_DETERMINED / ERROR
 ```
 
-#### 4.3 回调格式
+#### 回调格式
 
 ```json
 { "code": 0, "msg": "", "data": { } }
 ```
 
-- `code == 0` 成功，其余见 [§4.4](#44-错误码)
-- `data` 形状见 [§4.1](#41-方法总表)；多数方法为 `{}`
+- `code == 0` 成功，其余见 [错误码](#错误码)
+- `data` 形状见 [方法总表](#方法总表)；多数方法为 `{}`
 - **`checkPermission` 的未授权状态在 `data.status` 里**（`GRANTED` / `DENIED` / `NOT_DETERMINED`），**不是**通过 `code` 返回
 - `getLaunchNotification()` 是**同步**方法，直接返回 `NotificationClickEvent?`，不是 `JsonResult`
 
-#### 4.4 错误码
+#### 错误码
 
 | code | 常量 | 状态 | 含义 / 常见原因 |
 |---|---|---|---|
@@ -423,7 +423,7 @@ NotificationConst.PermissionStatus  // GRANTED / DENIED / NOT_DETERMINED / ERROR
 | `1002` | `PERMISSION_DENIED` | 使用中 | 无通知权限；`show()` 被拒 |
 | `1006` | `PAST_TIME_NOT_ALLOWED` | 使用中 | `scheduleAt` 传了过去时间（iOS 明确报错） |
 | `1007` | `UNSUPPORTED_INTERVAL` | 使用中 | 间隔不支持（鸿蒙仅 `DAY` / `WEEK`） |
-| `1009` | `REMINDER_NOT_ALLOWED` | 使用中 | 代理提醒被管控（鸿蒙需资质；见 [§5](#5-平台差异与已知限制)） |
+| `1009` | `REMINDER_NOT_ALLOWED` | 使用中 | 代理提醒被管控（鸿蒙需资质；见 [三端差异与限制](#三端差异与限制)） |
 | `1010` | `UNSUPPORTED` | 使用中 | 该端不支持此能力（如 iOS 调 `createChannel`） |
 | `1011` | `INVALID_REQUEST` | 使用中 | 参数非法 / 未知方法 |
 | `1003` `1004` `1005` `1008` | `PERMISSION_NOT_DETERMINED` `CHANNEL_NOT_FOUND` `CHANNEL_DISABLED` `BAD_SOUND_FORMAT` | **已预留，当前三端均不会返回** | 常量已定义，供后续细化 |
@@ -433,61 +433,58 @@ NotificationConst.PermissionStatus  // GRANTED / DENIED / NOT_DETERMINED / ERROR
 
 ---
 
-### 5. 平台差异与已知限制
+### 三端差异与限制
 
 | 维度 | Android | iOS | 鸿蒙 |
 |---|---|---|---|
-| 请求权限 | **<13 无运行时权限，直接返回 `GRANTED` 不弹窗**；13+ 弹框需宿主 `targetSdk ≥ 33`（见 [§3.1](#31-环境要求)）；**拒绝后不再弹** | 首次弹系统框；拒绝后不再弹，需去设置 | 首次弹系统框；拒绝后 `requestEnableNotification` 不再弹，需走设置 |
+| 请求权限 | **<13 无运行时权限，直接返回 `GRANTED` 不弹窗**；13+ 弹框需宿主 `targetSdk ≥ 33`（见 [环境要求](#环境要求)）；**拒绝后不再弹** | 首次弹系统框；拒绝后不再弹，需去设置 | 首次弹系统框；拒绝后 `requestEnableNotification` 不再弹，需走设置 |
 | 渠道 | `NotificationChannel`，`importance` 可调；**创建后重要性不可修改**；组件会用 `default` 渠道兜底（渠道不存在时自动创建） | 无渠道概念 → `1010` | `addSlot(type)`，**等级由类型固定**：`HIGH→SOCIAL_COMMUNICATION`、`DEFAULT→SERVICE_INFORMATION`、`LOW/MIN→CONTENT_INFORMATION` |
 | 横幅 | **仅 `IMPORTANCE_HIGH` 渠道**；已按低重要性建过的渠道无法升级，只能换新 `channelId` | 由系统策略 + `showWhenInForeground` 决定 | 需 `LEVEL_HIGH` 渠道（社交通讯/服务提醒）**且系统「横幅通知」开关打开（默认关闭）** |
 | 定时 | `AlarmManager`；精确需宿主声明 `SCHEDULE_EXACT_ALARM` | `UNCalendarNotificationTrigger`；**过去时间 → `1006`** | 代理提醒；**需 `reminder_capability` 资质**，且**提前量 ≥30 秒** |
 | 重复 | `setRepeating` | `UNTimeIntervalNotificationTrigger(repeats: true)` | 仅 `DAY` / `WEEK`（Alarm）；其余 → `1007` |
-| 角标 | ❌ | ✅（16+ `setBadgeCount`；≤15 `applicationIconBadgeNumber`） | ❌ |
+| 角标 | 不支持 | 支持（16+ `setBadgeCount`；≤15 `applicationIconBadgeNumber`） | 不支持 |
 | 前后台判断 | `ProcessLifecycleOwner` | `willPresent` options | `applicationStateManager` |
 | 冷启动 payload | `KRNotificationLaunch.onNewIntent()` 缓存 | delegate `didReceive` 自动缓存 | 宿主调 `populateLaunchNotification(want.parameters)` |
 | 设置引导 | 4 个接口全支持 | 仅 `openNotificationSettings` | 仅 `openNotificationSettings`（API 13+） |
 
-**明确不支持**：Android 厂商角标；远程/离线推送；厂商推送通道参数配置。
-
 ---
 
-### 6. 厂商资质与自办清单（含指引）
+### 厂商资质要自己申请
 
-> **本库不代办任何资质**。下列事项由**宿主开发者**在接入时自行申请/配置。
-> 各厂商后台改版频繁，**入口与流程以官方最新为准**。
+> 本库不代办资质，下面这些要你在接入时自己申请。各厂商后台改版频繁，具体入口以官方最新为准。
 
-#### 6.1 Android
+#### Android 机型
 
-| 事项 | 谁负责 | 不做的症状 | 指引 |
-|---|---|---|---|
-| 小米「后台发送本地通知」白名单 | 宿主 | 应用退到后台后发的本地通知**不展示** | 小米开放平台（`dev.mi.com`）申请白名单；或改用小米推送 |
-| 华为 / 荣耀「消息自分类」权益 | 宿主 | 本地通知被按「资讯营销类」限频 | 华为 AppGallery Connect（`developer.huawei.com`）→ 应用 → 消息自分类 |
-| 自启动 / 后台运行白名单 | 宿主 + 用户 | 定时/重复通知在应用被杀后**不触发** | 库提供 `openAutoStartSettings()` 直接跳转各厂商页面 |
-| 精确闹钟 `SCHEDULE_EXACT_ALARM` | 宿主 | `scheduleAt` 时间不准 | 宿主在 Manifest 声明（见 [§3.1](#31-环境要求)）；上架 Google Play 需符合其政策 |
-| 电池优化白名单 | 宿主 + 用户 | 后台被限制 | 库提供 `isBatteryOptimizationEnabled()` / `openBatteryOptimizationSettings()` |
+| 事项 | 不做会怎样 | 怎么办 |
+|---|---|---|
+| 小米「后台发送本地通知」白名单 | 应用退到后台后发的本地通知不展示 | 小米开放平台（`dev.mi.com`）申请；或改用小米推送 |
+| 华为 / 荣耀「消息自分类」权益 | 本地通知被按「资讯营销类」限频 | 华为 AppGallery Connect（`developer.huawei.com`）→ 应用 → 消息自分类 |
+| 自启动 / 后台运行白名单 | 定时、重复通知在应用被杀后不触发 | 用 `openAutoStartSettings()` 跳到厂商设置页，让用户手动开 |
+| 精确闹钟 `SCHEDULE_EXACT_ALARM` | `scheduleAt` 时间不准 | 在宿主 Manifest 里声明（见 [环境要求](#环境要求)） |
+| 电池优化白名单 | 后台被限制 | `isBatteryOptimizationEnabled()` / `openBatteryOptimizationSettings()` |
 
 ```kotlin
 notification.isBatteryOptimizationEnabled { r -> /* r.data: {"enabled": true} = 电池优化开启（未加白名单） */ }
 notification.openBatteryOptimizationSettings { }
-notification.openAutoStartSettings { }   // 小米/华为/荣耀/OPPO/vivo/魅族；无对应页面时回退应用详情
+notification.openAutoStartSettings { }   // 跳到厂商的自启动/后台管理页；没有对应页面的机型会回退到应用详情
 notification.openNotificationSettings { }
 ```
 
-#### 6.2 鸿蒙
+#### 鸿蒙机型
 
-| 事项 | 谁负责 | 不做的症状 | 指引 |
-|---|---|---|---|
-| 代理提醒 `reminder_capability` | 宿主 | `publishReminder` 返回 **`1700002`**（配额 0） | 华为 AppGallery Connect（`developer.huawei.com`）→ 应用 → 配置「代理提醒」相关能力 |
-| 系统「横幅通知」开关 | 用户（宿主引导） | 通知只进通知栏，**不弹横幅** | `设置 → 通知和状态栏 → 本应用 → 提醒方式 → 横幅通知`；库提供 `openNotificationSettings()` |
+| 事项 | 不做会怎样 | 怎么办 |
+|---|---|---|
+| 代理提醒 `reminder_capability` | `publishReminder` 返回 `1700002`（配额 0） | 华为 AppGallery Connect（`developer.huawei.com`）→ 应用 → 配置「代理提醒」能力 |
+| 系统「横幅通知」开关 | 通知只进通知栏，不弹横幅 | 用 `openNotificationSettings()` 跳到这个设置页，让用户手动开 |
 
-#### 6.3 其他
+#### 其他
 
 - **iOS**：无厂商资质要求，权限由系统弹窗授予。
 - **Google Play**：`SCHEDULE_EXACT_ALARM` 属敏感权限，上架前确认政策合规。
 
 ---
 
-### 7. 宿主接入 Checklist
+### 接入检查清单
 
 #### Android
 
@@ -498,7 +495,7 @@ notification.openNotificationSettings { }
 - [ ] Kuikly 页面 `createExternalModules()` 注册 **`...notification.module.KRNotificationModule`**
 - [ ] 原生侧经 `pageData` 注入 `hostActivity` / `smallIconResId`，页面 `configure()`
 - [ ] 需要横幅 → 建 `IMPORTANCE_HIGH` 渠道后再发
-- [ ] 国内 ROM：申请/引导厂商白名单与自启动（[§6.1](#61-android)）
+- [ ] 国内 ROM：申请/引导厂商白名单与自启动（[Android 机型](#android-机型)）
 
 #### iOS
 
@@ -515,9 +512,9 @@ notification.openNotificationSettings { }
 - [ ] 入口 Ability 调 `populateLaunchNotification(want.parameters)`
 - [ ] 定时/重复：申请 `reminder_capability`；提前量 ≥30 秒
 - [ ] 横幅：引导用户开系统「横幅通知」
-- [ ] **真机验证**（arm64；见 [§9.3](#93-鸿蒙只能跑纯-arkts-验证-demo)）
+- [ ] **真机验证**（arm64；见 [鸿蒙只能跑纯 ArkTS 验证 Demo](#鸿蒙只能跑纯-arkts-验证-demo)）
 
-#### 真机验证清单（三端通用）
+#### 真机验证（三端通用）
 
 - [ ] 前台 / 后台 / 进程被杀 三种状态下的通知展示
 - [ ] 点击回跳 + 冷启动 payload
@@ -527,13 +524,13 @@ notification.openNotificationSettings { }
 
 ---
 
-### 8. FAQ / 排障
+### 常见问题
 
 **Q：调了 `show()` 但通知栏没有？**
 1. `checkPermission()` 的 `data.status` 是否为 `GRANTED`？
 2. Android：`channelId` 写错了也没关系——组件会用 `default` 渠道兜底（不存在时自动创建）；但要横幅必须用 `IMPORTANCE_HIGH` 渠道。
-3. 国内 ROM：是否被厂商管控（小米后台本地通知、华为频次）？→ [§6.1](#61-android)
-4. 鸿蒙：只想看横幅？系统「横幅通知」开关默认关闭 → [§6.2](#62-鸿蒙)
+3. 国内 ROM：是否被厂商管控（小米后台本地通知、华为频次）？→ [Android 机型](#android-机型)
+4. 鸿蒙：只想看横幅？系统「横幅通知」开关默认关闭 → [鸿蒙机型](#鸿蒙机型)
 5. App 在前台？`showWhenInForeground` 默认 `false`。
 
 **Q：`scheduleAt` 不触发？**
@@ -553,15 +550,15 @@ notification.openNotificationSettings { }
 
 **Q：`createChannel` 返回 `1010`？** 在 iOS 上调用。iOS 没有渠道概念，属预期。
 
-**Q：接入时 IDE 提示 `KRNotificationModule` 找不到 / 导错？** 有两个同名类（包名不同），见 [§3.5 第 4 步](#35-android-接入)。
+**Q：接入时 IDE 提示 `KRNotificationModule` 找不到 / 导错？** 有两个同名类（包名不同），见 [Android 接入](#android-接入) 第 4 步。
 
-**Q：鸿蒙模拟器上跑不起来？** 见 [§9.3](#93-鸿蒙只能跑纯-arkts-验证-demo)：**Kuikly 引擎仅 arm64**。
+**Q：鸿蒙模拟器上跑不起来？** 见 [鸿蒙只能跑纯 ArkTS 验证 Demo](#鸿蒙只能跑纯-arkts-验证-demo)：**Kuikly 引擎仅 arm64**。
 
 ---
 
-### 9. Demo 与验证
+### 示例工程
 
-#### 9.1 Android（Windows / macOS / Linux 均可编译）
+#### Android 示例
 
 ```bash
 ./gradlew :androidApp:assembleDebug
@@ -569,20 +566,20 @@ notification.openNotificationSettings { }
 adb install -r androidApp/build/outputs/apk/debug/androidApp-debug.apk
 ```
 
-#### 9.2 iOS（需 macOS + Xcode）
+#### iOS 示例
 
 见 [`iosApp/README.md`](iosApp/README.md)：创建宿主工程 → 配置 Podfile → `pod install`。
 
-#### 9.3 鸿蒙：只能跑纯 ArkTS 验证 Demo
+#### 鸿蒙只能跑纯 ArkTS 验证 Demo
 
 Kuikly 的鸿蒙渲染引擎 `libkuikly.so` **只有 arm64**（2026-09 核实：ohpm 上的 `@kuikly-open/render` 2.28.0 包内仍只有 `libs/arm64-v8a/`；Maven `-ohos` 构件也只有 `ohosArm64` 变体），而
 **Windows / Intel Mac 的鸿蒙模拟器是 x86_64**，且无 ARM 指令翻译层 → **Kuikly 无法在该模拟器运行**。
 
 | 设备 | 架构 | 能跑 Kuikly |
 |---|---|---|
-| Windows / Intel Mac 鸿蒙模拟器 | x86_64 | ❌ |
-| Apple Silicon Mac 鸿蒙模拟器 | arm64 | ✅ |
-| 鸿蒙真机 | arm64 | ✅ |
+| Windows / Intel Mac 鸿蒙模拟器 | x86_64 | 不能 |
+| Apple Silicon Mac 鸿蒙模拟器 | arm64 | 能 |
+| 鸿蒙真机 | arm64 | 能 |
 
 因此本仓库额外提供 **`ohosApp/entry`（纯 ArkTS 验证 Demo）**，不含原生库，可在 x86 模拟器直接验证鸿蒙通知 API（权限 / 渠道 / 立即 / 横幅 / 点击回跳 / 代理提醒 / 取消）。详见 [`ohosApp/README.md`](ohosApp/README.md)。
 
@@ -594,9 +591,9 @@ hdc install -r entry/build/default/outputs/default/entry-default-unsigned.hap
 
 ---
 
-### 10. 版本、兼容性与发布
+### 版本与兼容
 
-#### 10.1 版本表
+#### 版本表
 
 | 项 | 值 |
 |---|---|
@@ -612,7 +609,7 @@ hdc install -r entry/build/default/outputs/default/entry-default-unsigned.hap
 
 **语义化版本**：遵循 [SemVer](https://semver.org/lang/zh-CN/)。变更记录见 [`CHANGELOG.md`](CHANGELOG.md)。
 
-#### 10.2 鸿蒙产物编译（独立编译链）
+#### 鸿蒙产物编译（独立编译链）
 
 鸿蒙产物需用**腾讯定制版 Kotlin 工具链**单独编译（官方 Kotlin 不支持 `ohosArm64`），且 Kuikly 构件要用 `-ohos` 后缀版本，故使用**独立 settings**：
 
@@ -627,7 +624,7 @@ export OHOS_SDK_HOME="/path/to/DevEco Studio/sdk/default/openharmony"
 
 ---
 
-### 11. 隐私与本地数据
+### 隐私与本地数据
 
 组件**不采集、不上报**任何数据，也不加密/改写通知内容。但会在**本机**持久化少量状态（Android 实现，存于 `SharedPreferences`，名 `kr_notification`）：
 
@@ -638,14 +635,14 @@ export OHOS_SDK_HOME="/path/to/DevEco Studio/sdk/default/openharmony"
 | `launch_id` / `launch_payload` / `launch_action` | **冷启动 payload（明文）** | `getLaunchNotification()` 消费一次后清除 |
 | `scheduled_ids` | 已排期的通知 id（用于 `cancelAll`） | 取消时清除 |
 
-> ⚠️ `payload` 会**明文落盘**直到被消费。若 payload 含敏感信息，请在业务侧自行脱敏或改用可短期失效的引用 id。
+> 注意：`payload` 会**明文落盘**直到被消费。若 payload 含敏感信息，请在业务侧自行脱敏或改用可短期失效的引用 id。
 > iOS / 鸿蒙实现不落盘 payload（各自随系统 delegate / want 传递）。
 
 ---
 
-### 12. 贡献指南
+### 参与开发
 
-#### 12.1 工程结构
+#### 工程结构
 
 ```
 KuiklyNotification/            Kuikly 侧（KMP）：Module、数据模型、常量、错误码
@@ -658,7 +655,7 @@ buildSrc/                      版本、坐标、POM 元数据、发布仓库（
 maven-repo/                    已发布的 Maven 产物（推到 gh-pages 即成为公开仓库）
 ```
 
-#### 12.2 iOS 两个 podspec
+#### iOS 的两个 podspec
 
 | podspec | 位置 | 用途 |
 |---|---|---|
@@ -667,7 +664,7 @@ maven-repo/                    已发布的 Maven 产物（推到 gh-pages 即�
 
 > 两者同时引入会在链接期产生**大量 duplicate symbols**（曾观察到 >1.5 万条），务必只引其一。
 
-#### 12.3 本地构建
+#### 本地构建
 
 ```bash
 ./gradlew :androidApp:assembleDebug                       # Android（任意 OS）
@@ -681,31 +678,31 @@ cd ohosApp && hvigorw assembleHar                          # 鸿蒙 HAR
 ./gradlew -c settings.ohos.gradle.kts :shared:linkSharedDebugSharedOhosArm64   # 鸿蒙 KN 产物
 ```
 
-#### 12.4 新增一个能力的约定
+#### 新增一个能力
 
 1. Kuikly 侧 `KuiklyNotification/src/commonMain` 加方法（`KRNotificationModule` 是具体类，不用 expect/actual）
 2. 三端各自实现：`KRNotificationModule`(Android) / `.m`(iOS，按方法名反射分发) / `.ets`(鸿蒙，`call()` 分发)
 3. **统一回调**：native 回包 `{"code","msg","data"}`，错误码复用 `NotificationConst.ErrorCode`
 4. 端不支持的必须回调 `UNSUPPORTED(1010)`，不要静默失败
-5. 平台差异登记到本文档 [§5](#5-平台差异与已知限制)
+5. 平台差异登记到本文档 [三端差异与限制](#三端差异与限制)
 6. **中英双语同步更新**，并在 [`CHANGELOG.md`](CHANGELOG.md) 记录
 
-#### 12.5 提交约定
+#### 提交约定
 
 - 一个提交一个关注点；能编译就本地验证
 - 语义化提交：`feat(android):` / `fix(ohos):` / `docs:` / `style(demo):`
 - 改了公共 API：必须同时更新文档两语言 + CHANGELOG
 
-#### 12.6 测试
+#### 测试
 
-`KuiklyNotification` 已预留 `commonTest`（Kotlin Test）。当前以**三端 Demo + 真机验证**为主（见 [§9](#9-demo-与验证)）。更多约定见 [`CONTRIBUTING.md`](CONTRIBUTING.md)。
+`KuiklyNotification` 已预留 `commonTest`（Kotlin Test）。当前以**三端 Demo + 真机验证**为主（见 [示例工程](#示例工程)）。更多约定见 [`CONTRIBUTING.md`](CONTRIBUTING.md)。
 
 ---
 
-### 13. License / 支持
+### License 与支持
 
 - 仓库：<https://github.com/AriaLEntropy/KuiklyNotification>
 - 问题反馈：<https://github.com/AriaLEntropy/KuiklyNotification/issues>
 - License：Apache-2.0
 
-[⬆ 回到顶部](#kuiklynotification) · [English](README.en.md)
+[回到顶部](#kuiklynotification) · [English](README.en.md)
