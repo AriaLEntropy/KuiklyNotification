@@ -1,5 +1,6 @@
 plugins {
     kotlin("multiplatform")
+    kotlin("native.cocoapods")
     id("com.android.library")
 }
 
@@ -19,6 +20,18 @@ kotlin {
     iosX64()
     iosArm64()
     iosSimulatorArm64()
+
+    cocoapods {
+        summary = "KuiklyNotification KMP module"
+        homepage = "https://github.com/AriaLEntropy/KuiklyNotification"
+        version = MavenConfig.VERSION
+        ios.deploymentTarget = "12.0"
+        podfile = project.file("../iosApp/Podfile")
+        framework {
+            baseName = "KuiklyNotification"
+            isStatic = true
+        }
+    }
 
     sourceSets {
         val commonMain by getting {
