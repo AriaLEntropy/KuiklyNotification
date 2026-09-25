@@ -82,10 +82,10 @@ struct Index {
           this.DemoButton('6. 发通知(低等级，不出横幅)', () => {
             this.helper?.show(2, '低等级通知', '内容资讯渠道，不弹横幅', false, 'p_low');
           })
-          this.DemoButton('7. 30 秒后提醒（代理提醒）', () => {
+          this.DemoButton('7. 30 秒后提醒（代理提醒，需资质）', () => {
             this.helper?.scheduleAt(3, '定时提醒', '30 秒后的代理提醒', 30000);
           })
-          this.DemoButton('8. 每日提醒（代理提醒）', () => {
+          this.DemoButton('8. 每日提醒（代理提醒，需资质）', () => {
             this.helper?.showDaily(4, '每日提醒', '每日代理提醒(Alarm)');
           })
           this.DemoButton('9. 3 秒后发通知（可先切后台）', () => {

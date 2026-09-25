@@ -94,6 +94,32 @@ internal class NotificationDemoPage : BasePager() {
         else -> "（首次弹窗）"
     }
 
+    /** 定时：鸿蒙走代理提醒，需资质且提前量 ≥30 秒（实测 10 秒返回 401） */
+    private fun scheduleHint(): String =
+        if (pagerData.isOhOs) "（鸿蒙：需代理提醒资质，且提前量 ≥30 秒）" else ""
+
+    /** 重复：鸿蒙走代理提醒 Alarm，需资质 */
+    private fun dailyHint(): String =
+        if (pagerData.isOhOs) "（鸿蒙：需代理提醒资质）" else ""
+
+    /** 角标仅 iOS 支持 */
+    private fun onlyIOSHint(): String =
+        if (pagerData.isIOS) "" else "（仅 iOS，其他端返回 UNSUPPORTED）"
+
+    /** 渠道仅 Android / 鸿蒙有（iOS 无渠道概念） */
+    private fun channelHint(): String =
+        if (pagerData.isIOS) "（iOS 无渠道，返回 UNSUPPORTED）" else ""
+
+    /** 电池优化 / 自启动仅 Android 有 */
+    private fun onlyAndroidHint(): String =
+        if (pagerData.isAndroid) "" else "（仅 Android，其他端返回 UNSUPPORTED）"
+
+    /** 横幅：鸿蒙代理提醒短时不可用，改用立即发送 HIGH 渠道通知演示；且横幅需系统开关 */
+    private fun bannerLabel(): String = when {
+        pagerData.isOhOs -> "9. 立即发横幅通知（鸿蒙需系统开「横幅通知」）"
+        else -> "9. 3 秒后横幅通知（high 渠道）"
+    }
+
     override fun body(): ViewBuilder {
         val ctx = this
         // 安全区：iOS 刘海/状态栏、底部 Home 指示器，避免内容被遮挡
@@ -165,7 +191,7 @@ internal class NotificationDemoPage : BasePager() {
                         }
                     }
 
-                    demoButton("3. 10 秒后定时通知") {
+                    demoButton("3. 10 秒后定时通知${ctx.scheduleHint()}") {
                         val request = NotificationRequest(
                             id = 2,
                             title = "定时通知",
@@ -178,7 +204,7 @@ internal class NotificationDemoPage : BasePager() {
                         }
                     }
 
-                    demoButton("4. 每天重复通知") {
+                    demoButton("4. 每天重复通知${ctx.dailyHint()}") {
                         val request = NotificationRequest(
                             id = 3,
                             title = "每日通知",
@@ -202,46 +228,53 @@ internal class NotificationDemoPage : BasePager() {
                         }
                     }
 
-                    demoButton("7. 设置角标 5（iOS）") {
+                    demoButton("7. 设置角标 5${ctx.onlyIOSHint()}") {
                         ctx.notification.setBadge(5) { result ->
                             ctx.appendLog("setBadge: code=${result.code}")
                         }
                     }
 
-                    demoButton("8. 创建高优先级渠道 high") {
+                    demoButton("8. 创建高优先级渠道 high${ctx.channelHint()}") {
                         ctx.notification.createChannel("high", "高优先级", NotificationConst.Importance.HIGH) { result ->
                             ctx.appendLog("createChannel: code=${result.code}")
                         }
                     }
 
-                    demoButton("9. 3 秒后横幅通知（high 渠道）") {
+                    demoButton(ctx.bannerLabel()) {
                         val request = NotificationRequest(
                             id = 10,
                             title = "横幅通知",
-                            body = "IMPORTANCE_HIGH 才会出横幅",
+                            body = "高优先级渠道才会出横幅",
                             channelId = "high",
                             payload = "banner_payload",
                             showWhenInForeground = true
                         )
-                        val triggerAt = DateTime.currentTimestamp() + 3_000L
-                        ctx.notification.scheduleAt(request, triggerAt) { result ->
-                            ctx.appendLog("banner schedule: code=${result.code}")
+                        if (ctx.pagerData.isOhOs) {
+                            // 鸿蒙代理提醒提前量过短会返回 401，改为立即发送高等级渠道通知演示横幅
+                            ctx.notification.show(request) { result ->
+                                ctx.appendLog("banner show: code=${result.code}")
+                            }
+                        } else {
+                            val triggerAt = DateTime.currentTimestamp() + 3_000L
+                            ctx.notification.scheduleAt(request, triggerAt) { result ->
+                                ctx.appendLog("banner schedule: code=${result.code}")
+                            }
                         }
                     }
 
-                    demoButton("10. 电池优化是否开启") {
+                    demoButton("10. 电池优化是否开启${ctx.onlyAndroidHint()}") {
                         ctx.notification.isBatteryOptimizationEnabled { result ->
                             ctx.appendLog("batteryOptimization: code=${result.code}, ${result.data}")
                         }
                     }
 
-                    demoButton("11. 打开电池优化设置") {
+                    demoButton("11. 打开电池优化设置${ctx.onlyAndroidHint()}") {
                         ctx.notification.openBatteryOptimizationSettings { result ->
                             ctx.appendLog("openBatteryOptimizationSettings: code=${result.code}")
                         }
                     }
 
-                    demoButton("12. 打开自启动设置") {
+                    demoButton("12. 打开自启动设置${ctx.onlyAndroidHint()}") {
                         ctx.notification.openAutoStartSettings { result ->
                             ctx.appendLog("openAutoStartSettings: code=${result.code}")
                         }
