@@ -1,0 +1,9 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "KuiklyNotification 鸿蒙通知验证 Demo（纯 ArkTS，测试宿主/脚手架）",
+  "main": "",
+  "author": "AriaLEntropy",
+  "license": "Apache-2.0",
+  "dependencies": {}
+}

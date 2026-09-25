@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "KuiklyNotification 鸿蒙通知验证 Demo"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "KuiklyNotification HarmonyOS notification verification demo"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "通知验证"
+    }
+  ]
+}
