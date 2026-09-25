@@ -1,4 +1,4 @@
-package io.github.arialentropy.notification.module
+package io.github.arialentropy.notification.android
 
 import android.content.BroadcastReceiver
 import android.content.Context

@@ -17,8 +17,8 @@ import io.github.arialentropy.notification.app.adapter.KRLogAdapter
 import io.github.arialentropy.notification.app.adapter.KRRouterAdapter
 import io.github.arialentropy.notification.app.adapter.KRThreadAdapter
 import io.github.arialentropy.notification.app.adapter.KRUncaughtExceptionHandlerAdapter
-import io.github.arialentropy.notification.module.KRNotificationLaunch
-import io.github.arialentropy.notification.module.KRNotificationModule
+import io.github.arialentropy.notification.android.KRNotificationLaunch
+import io.github.arialentropy.notification.android.KRNotificationModule
 import org.json.JSONObject
 
 class KuiklyRenderActivity : AppCompatActivity(), KuiklyRenderViewBaseDelegatorDelegate {

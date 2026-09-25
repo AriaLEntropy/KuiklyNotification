@@ -13,6 +13,9 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
+    buildFeatures {
+        buildConfig = true
+    }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
@@ -31,6 +34,7 @@ dependencies {
     implementation(project(":shared"))
     implementation(project(":KuiklyNotificationAndroid"))
 
-    // core-render-android 已传递 appcompat / recyclerview / dynamicanimation
+    // core-render-android 已传递 recyclerview / dynamicanimation
     implementation("com.tencent.kuikly-open:core-render-android:${Version.getKuiklyVersion()}")
+    implementation("androidx.appcompat:appcompat:1.6.1")
 }
