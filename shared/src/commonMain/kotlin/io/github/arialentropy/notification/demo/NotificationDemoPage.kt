@@ -82,6 +82,18 @@ internal class NotificationDemoPage : BasePager() {
         logText = "$line\n$logText"
     }
 
+    /**
+     * 各端「请求权限」的首次授权行为不同，按钮说明按平台生成：
+     * - Android：13+ 才弹系统框；<13 无运行时权限，直接返回 GRANTED
+     * - iOS / 鸿蒙：首次弹系统框；用户拒绝后系统不再弹，需去设置里开启
+     */
+    private fun permissionHint(): String = when {
+        pagerData.isAndroid -> "（Android 13+ 才弹窗）"
+        pagerData.isIOS -> "（首次弹窗，拒绝后需去设置开启）"
+        pagerData.isOhOs -> "（首次弹窗，拒绝后需去设置开启）"
+        else -> "（首次弹窗）"
+    }
+
     override fun body(): ViewBuilder {
         val ctx = this
         // 安全区：iOS 刘海/状态栏、底部 Home 指示器，避免内容被遮挡
@@ -135,7 +147,7 @@ internal class NotificationDemoPage : BasePager() {
 
                     sectionLabel("操作")
 
-                    demoButton("1. 请求权限（Android13+ 才弹窗）") {
+                    demoButton("1. 请求权限${ctx.permissionHint()}") {
                         ctx.notification.requestPermission { result ->
                             ctx.appendLog("权限: code=${result.code}, ${result.data?.optString("status")}")
                         }
@@ -232,6 +244,12 @@ internal class NotificationDemoPage : BasePager() {
                     demoButton("12. 打开自启动设置") {
                         ctx.notification.openAutoStartSettings { result ->
                             ctx.appendLog("openAutoStartSettings: code=${result.code}")
+                        }
+                    }
+
+                    demoButton("13. 打开通知设置（引导开启）") {
+                        ctx.notification.openNotificationSettings { result ->
+                            ctx.appendLog("openNotificationSettings: code=${result.code}")
                         }
                     }
 
