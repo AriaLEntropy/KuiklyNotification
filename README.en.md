@@ -165,12 +165,12 @@ hvigorw assembleHar
 // host oh-package.json5
 {
   "dependencies": {
-    "@xiaoaiechan/kuikly-notification-ohos": "file:../KuiklyNotificationOhos"
+    "kuikly-notification-ohos": "file:../KuiklyNotificationOhos"
   }
 }
 ```
 
-> If it is later published to the ohpm registry, this becomes `ohpm install @xiaoaiechan/kuikly-notification-ohos`
+> If it is later published to the ohpm registry, this becomes `ohpm install kuikly-notification-ohos`
 >.
 
 #### 3.3 Common step: `configure`

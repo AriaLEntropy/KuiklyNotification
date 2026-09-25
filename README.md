@@ -158,12 +158,12 @@ hvigorw assembleHar
 ```json5
 {
   "dependencies": {
-    "@xiaoaiechan/kuikly-notification-ohos": "file:../KuiklyNotificationOhos"
+    "kuikly-notification-ohos": "file:../KuiklyNotificationOhos"
   }
 }
 ```
 
-> 未来若发布到 ohpm 公共仓，即可改为 `ohpm install @xiaoaiechan/kuikly-notification-ohos`。
+> 未来若发布到 ohpm 公共仓，即可改为 `ohpm install kuikly-notification-ohos`。
 
 #### 3.3 通用第一步：`configure`
 
