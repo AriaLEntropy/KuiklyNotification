@@ -9,6 +9,8 @@ A cross-platform **local notification** component for [Kuikly](https://github.co
 
 ## 中文
 
+`[⬆ 顶部](#kuiklynotification) · [切到 English](#english)`
+
 > 本文件为中英双语。**以中文为准**；英文为同步翻译，如有出入请以中文为准。
 > 术语对照：通知渠道 = Notification Channel / Slot · 横幅 = Heads-up / Banner · 代理提醒 = Agent-powered Reminder · 冷启动 = Cold start
 
@@ -648,9 +650,13 @@ cd ohosApp && hvigorw assembleHar
 - 问题反馈：<https://github.com/AriaLEntropy/KuiklyNotification/issues>
 - License：Apache-2.0
 
+`[⬆ 回到顶部](#kuiklynotification) · [切到 English](#english)`
+
 ---
 
 ## English
+
+`[⬆ Top](#kuiklynotification) · [切换到中文](#中文)`
 
 > This file is bilingual. **Chinese is authoritative**; the English text is a synchronized translation.
 > Glossary: 通知渠道 = Notification Channel / Slot · 横幅 = Heads-up / Banner · 代理提醒 = Agent-powered Reminder · 冷启动 = Cold start
@@ -1274,3 +1280,5 @@ real-device testing (see [§9](#9-demos--verification)).
 - Repository: <https://github.com/AriaLEntropy/KuiklyNotification>
 - Issues: <https://github.com/AriaLEntropy/KuiklyNotification/issues>
 - License: Apache-2.0
+
+`[⬆ Back to top](#kuiklynotification) · [切换到中文](#中文)`
