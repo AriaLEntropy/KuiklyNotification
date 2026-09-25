@@ -90,7 +90,7 @@ export OHOS_SDK_HOME="/path/to/DevEco Studio/sdk/default/openharmony"
 - **代理提醒受管控**：定时 / 重复通知依赖代理提醒，需应用具备 `reminder_capability` 云能力（AGC 侧申请）。未申请时 `publishReminder` 返回 `1700002`（配额 0）。相关资质由**宿主自行申请**，本库不代办。
 - **定时提前量不能过短**：实测提前 10 秒 → `401 Parameter error`；30 秒 / 60 秒通过。建议至少留 ≥1 分钟。
 - **横幅默认出不来**：鸿蒙要弹顶部横幅，除了渠道用 `SOCIAL_COMMUNICATION` / `SERVICE_INFORMATION`（`LEVEL_HIGH`），还**必须在系统设置里打开「横幅通知」**（该开关默认关闭）。可引导用户到 `设置 → 通知和状态栏 → 本应用 → 提醒方式 → 横幅通知`；实测（API 26 模拟器）开启后横幅立即出现。
-- 模拟器限制：Windows / Intel Mac 上的鸿蒙模拟器是 **x86_64**，而 Kuikly 引擎仅提供 **arm64**，因此 **Kuikly 无法在 Windows/Intel Mac 的鸿蒙模拟器运行**；需鸿蒙真机或 Apple Silicon Mac 的鸿蒙模拟器。
+- 模拟器限制：Windows / Intel Mac 上的鸿蒙模拟器是 **x86_64**，而 Kuikly 渲染引擎仅提供 **arm64**（截至最新 `@kuikly-open/render` **2.28.0**，包内仍只有 `libs/arm64-v8a/libkuikly.so`；maven `-ohos` 构件也只有 `ohosArm64` 变体），因此 **Kuikly 无法在 Windows / Intel Mac 的鸿蒙模拟器运行**；需鸿蒙真机或 Apple Silicon Mac 的鸿蒙模拟器。
 
 ## 版本
 
