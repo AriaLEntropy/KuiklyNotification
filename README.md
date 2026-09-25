@@ -61,7 +61,7 @@ Android 横幅只对 `IMPORTANCE_HIGH` 的渠道生效，且**渠道创建后重
 | 厂商推送通道参数 | 宿主（未来 KuiklyPush） | 仅离线推送需要（小米 / 华为 / 荣耀 / OPPO / vivo / 魅族） |
 | Android 角标 | 宿主（或二期组件） | 无统一 API，需按厂商单独适配 |
 
-本库提供**设置引导**能力（Android；其他端回调 `UNSUPPORTED`）：
+本库提供**设置引导**能力（Android 4 个全实现；鸿蒙 / iOS 仅 `openNotificationSettings` 可用，其余回调 `UNSUPPORTED`）：
 
 ```kotlin
 module.isBatteryOptimizationEnabled { r -> /* r.data: {"enabled": true} 表示电池优化开启（未加白名单） */ }

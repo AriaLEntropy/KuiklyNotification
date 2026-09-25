@@ -118,6 +118,19 @@ export class KRNotificationModule extends KuiklyRenderBaseModule {
       case 'getBadge':
         this.respond(callback, this.fail(CODE_UNSUPPORTED, 'unsupported on HarmonyOS'));
         return null;
+      // 厂商适配 / 设置引导：鸿蒙只有「通知设置」有意义，其余为 Android 专属
+      case 'isBatteryOptimizationEnabled':
+        this.respond(callback, this.fail(CODE_UNSUPPORTED, 'unsupported on HarmonyOS'));
+        return null;
+      case 'openBatteryOptimizationSettings':
+        this.respond(callback, this.fail(CODE_UNSUPPORTED, 'unsupported on HarmonyOS'));
+        return null;
+      case 'openAutoStartSettings':
+        this.respond(callback, this.fail(CODE_UNSUPPORTED, 'unsupported on HarmonyOS'));
+        return null;
+      case 'openNotificationSettings':
+        this.openNotificationSettings(callback);
+        return null;
       case 'setNotificationClickListener':
         this.clickCallback = callback;
         return null;
@@ -311,6 +324,19 @@ export class KRNotificationModule extends KuiklyRenderBaseModule {
     });
     this.reminderMap.clear();
     this.respond(callback, this.ok(null));
+  }
+
+  // ---------------- 设置引导 ----------------
+
+  /** 拉起本应用的通知管理半模态（可用于引导用户开启通知 / 横幅通知）。API 13+ */
+  private openNotificationSettings(callback: KuiklyRenderCallback | null): void {
+    notificationManager.openNotificationSettings(this.context)
+      .then(() => {
+        this.respond(callback, this.ok(null));
+      })
+      .catch((err: BusinessError) => {
+        this.respond(callback, this.fail(CODE_INVALID_REQUEST, err.message));
+      });
   }
 
   // ---------------- 冷启动（同步） ----------------

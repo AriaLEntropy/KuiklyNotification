@@ -237,6 +237,41 @@ static NSString *KRIdentifier(NSDictionary *params) {
     });
 }
 
+#pragma mark 厂商适配 / 设置引导（iOS 仅「通知设置」可用）
+
+- (void)isBatteryOptimizationEnabled:(NSDictionary *)args {
+    KRInvoke(args[KR_CALLBACK_KEY],
+             KRFailResult(1010, @"isBatteryOptimizationEnabled is unsupported on iOS"));
+}
+
+- (void)openBatteryOptimizationSettings:(NSDictionary *)args {
+    KRInvoke(args[KR_CALLBACK_KEY],
+             KRFailResult(1010, @"openBatteryOptimizationSettings is unsupported on iOS"));
+}
+
+- (void)openAutoStartSettings:(NSDictionary *)args {
+    KRInvoke(args[KR_CALLBACK_KEY],
+             KRFailResult(1010, @"openAutoStartSettings is unsupported on iOS"));
+}
+
+/// 打开本 App 的系统设置页（用户可在其中开启通知 / 横幅等）
+- (void)openNotificationSettings:(NSDictionary *)args {
+    KuiklyRenderCallback callback = args[KR_CALLBACK_KEY];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+        if (!url) {
+            KRInvoke(callback, KRFailResult(1010, @"settings url unavailable"));
+            return;
+        }
+        [[UIApplication sharedApplication] openURL:url
+                                           options:@{}
+                                 completionHandler:^(BOOL success) {
+            KRInvoke(callback, success ? KROkResult()
+                                       : KRFailResult(1010, @"open settings failed"));
+        }];
+    });
+}
+
 #pragma mark 点击事件
 
 - (void)setNotificationClickListener:(NSDictionary *)args {
