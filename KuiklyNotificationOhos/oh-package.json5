@@ -1,5 +1,5 @@
 {
-  "name": "@arialentropy/kuikly-notification-ohos",
+  "name": "@xiaoaiechan/kuikly-notification-ohos",
   "version": "1.0.0",
   "description": "KuiklyNotification HarmonyOS native module: cross-platform local notifications for Kuikly.",
   "main": "Index.ets",

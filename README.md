@@ -162,12 +162,12 @@ hvigorw assembleHar
 ```json5
 {
   "dependencies": {
-    "@arialentropy/kuikly-notification-ohos": "file:../KuiklyNotificationOhos"
+    "@xiaoaiechan/kuikly-notification-ohos": "file:../KuiklyNotificationOhos"
   }
 }
 ```
 
-> 未来若发布到 ohpm 公共仓，即可改为 `ohpm install @arialentropy/kuikly-notification-ohos`（对齐生态做法，见 [§12.3](#123-发布流程维护者)）。
+> 未来若发布到 ohpm 公共仓，即可改为 `ohpm install @xiaoaiechan/kuikly-notification-ohos`（对齐生态做法，见 [§12.3](#123-发布流程维护者)）。
 
 #### 3.3 通用第一步：`configure`
 
@@ -696,7 +696,8 @@ git subtree push --prefix maven-repo origin gh-pages
 
 ```bash
 # 一次性准备（详见 https://ohpm.openharmony.cn）
-#   1) 用华为账号注册，创建组织/作用域（须与包名作用域一致，如 @arialentropy）
+#   1) 注册 OpenHarmony 三方库中心仓账号；个人账号的作用域 = 用户名（本包为 `@xiaoaiechan`）；
+#      想自定义作用域（如 `@arialentropy`）需创建组织，中心仓要求企业实名认证
 #   2) 生成 publish_id 与 SSH 密钥对：公钥上传，私钥存本地
 #   3) 写入 ~/.ohpm/.ohpmrc：
 #        publish_registry=https://ohpm.openharmony.cn/ohpm/
@@ -707,11 +708,11 @@ git subtree push --prefix maven-repo origin gh-pages
 # 未注册账号时也可只跑预校验：ohpm prepublish <har 路径>
 ```
 
-- 包名：`@arialentropy/kuikly-notification-ohos`
+- 包名：`@xiaoaiechan/kuikly-notification-ohos`
 - 发布物就是 `hvigorw assembleHar` 产出的 HAR；模块目录里的 `README.md` / `LICENSE` 会被一并打包
 - 每次发布需递增 `KuiklyNotificationOhos/oh-package.json5` 的 `version`
 - 预校验会提示「HAR 含源码」——HAR 本就分发 ArkTS 源码，属预期（若需混淆，可改用字节码 HAR）
-- 发布后消费者即可 `ohpm install @arialentropy/kuikly-notification-ohos`
+- 发布后消费者即可 `ohpm install @xiaoaiechan/kuikly-notification-ohos`
 
 #### 12.4 本地构建
 

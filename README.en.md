@@ -171,12 +171,12 @@ hvigorw assembleHar
 // host oh-package.json5
 {
   "dependencies": {
-    "@arialentropy/kuikly-notification-ohos": "file:../KuiklyNotificationOhos"
+    "@xiaoaiechan/kuikly-notification-ohos": "file:../KuiklyNotificationOhos"
   }
 }
 ```
 
-> If it is later published to the ohpm registry, this becomes `ohpm install @arialentropy/kuikly-notification-ohos`
+> If it is later published to the ohpm registry, this becomes `ohpm install @xiaoaiechan/kuikly-notification-ohos`
 > (the ecosystem convention, see [§12.3](#123-release-flow-maintainers)).
 
 #### 3.3 Common step: `configure`
@@ -718,7 +718,8 @@ git subtree push --prefix maven-repo origin gh-pages
 ```bash
 # One-time setup (see https://ohpm.openharmony.cn)
 #   1) register with a Huawei account and create an organization/scope
-#      (the scope must match the package name, e.g. @arialentropy)
+#      The personal account scope IS the username (this package uses @xiaoaiechan);
+#      a custom scope (e.g. @arialentropy) requires an organization, which needs enterprise verification
 #   2) generate a publish_id and an SSH key pair: upload the public key, keep the private key locally
 #   3) write ~/.ohpm/.ohpmrc:
 #        publish_registry=https://ohpm.openharmony.cn/ohpm/
@@ -729,13 +730,13 @@ git subtree push --prefix maven-repo origin gh-pages
 # without an account you can still run the local pre-check: ohpm prepublish <har>
 ```
 
-- Package name: `@arialentropy/kuikly-notification-ohos`
+- Package name: `@xiaoaiechan/kuikly-notification-ohos`
 - The published artifact is the HAR produced by `hvigorw assembleHar`; `README.md` / `LICENSE` in the module
   directory are packed into it
 - Bump `KuiklyNotificationOhos/oh-package.json5`'s `version` on every release
 - The pre-check warns that the HAR contains source code — that is expected (a HAR ships ArkTS source; switch to a
   bytecode HAR if obfuscation is required)
-- After publishing, consumers can simply run `ohpm install @arialentropy/kuikly-notification-ohos`
+- After publishing, consumers can simply run `ohpm install @xiaoaiechan/kuikly-notification-ohos`
 
 #### 12.4 Build locally
 

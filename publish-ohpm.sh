@@ -3,7 +3,8 @@
 # 发布鸿蒙 HAR 到 ohpm 中心仓（https://ohpm.openharmony.cn）。
 #
 # 前置（一次性，需账号）：
-#   1) 用华为账号注册，并创建组织/作用域（作用域须与包名一致，如 @arialentropy）
+#   1) 注册 OpenHarmony 三方库中心仓账号；个人账号的作用域 = 用户名（本包为 @xiaoaiechan）；
+#      想用自定义作用域（如 @arialentropy）需创建组织，而中心仓要求企业实名认证
 #   2) 在个人/组织中心生成 publish_id 与 SSH 密钥对：公钥上传，私钥存本地
 #   3) 配置 ~/.ohpm/.ohpmrc（或改用命令行参数）：
 #        publish_registry=https://ohpm.openharmony.cn/ohpm/
@@ -33,4 +34,4 @@ echo "[3/3] 发布 ..."
 ohpm publish "$HAR"
 
 echo ""
-echo "已发布 @arialentropy/kuikly-notification-ohos"
+echo "已发布 @xiaoaiechan/kuikly-notification-ohos"

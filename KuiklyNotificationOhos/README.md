@@ -1,4 +1,4 @@
-# @arialentropy/kuikly-notification-ohos
+# @xiaoaiechan/kuikly-notification-ohos
 
 KuiklyNotification 的**鸿蒙（HarmonyOS）原生实现**（ArkTS HAR），属于
 [KuiklyNotification](https://github.com/AriaLEntropy/KuiklyNotification) 组件，配合
@@ -10,10 +10,10 @@ KuiklyNotification 的**鸿蒙（HarmonyOS）原生实现**（ArkTS HAR），属
 ## 安装
 
 ```bash
-ohpm install @arialentropy/kuikly-notification-ohos
+ohpm install @xiaoaiechan/kuikly-notification-ohos
 ```
 
-> 若尚未发布到 ohpm 中心仓，可先用本地 HAR：`"@arialentropy/kuikly-notification-ohos": "file:../KuiklyNotificationOhos"`
+> 若尚未发布到 ohpm 中心仓，可先用本地 HAR：`"@xiaoaiechan/kuikly-notification-ohos": "file:../KuiklyNotificationOhos"`
 
 ## 依赖
 
@@ -22,7 +22,7 @@ ohpm install @arialentropy/kuikly-notification-ohos
 ## 使用
 
 ```ts
-import { KRNotificationModule } from '@arialentropy/kuikly-notification-ohos';
+import { KRNotificationModule } from '@xiaoaiechan/kuikly-notification-ohos';
 
 // 在 Kuikly 视图 delegate 中注册
 getCustomRenderModuleCreatorRegisterMap(): Map<string, KRRenderModuleExportCreator> {
