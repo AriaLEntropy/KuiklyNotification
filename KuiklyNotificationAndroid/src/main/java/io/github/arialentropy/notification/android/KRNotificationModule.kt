@@ -102,8 +102,17 @@ class KRNotificationModule : KuiklyRenderBaseModule() {
     // ---------------- 权限 ----------------
 
     private fun requestPermission(callback: KuiklyRenderCallback?) {
+        // Android 13(API 33) 才引入 POST_NOTIFICATIONS 运行时权限；低版本无需申请，直接视为已授权，不会弹窗
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             callback?.invoke(okResult(mapOf("status" to STATUS_GRANTED)))
+            return
+        }
+        // 已经申请过一次就不再重复弹窗（系统也不保证会再次弹出），直接返回当前状态
+        if (store.hasRequestedPermission) {
+            val granted = ContextCompat.checkSelfPermission(
+                ctx, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            callback?.invoke(okResult(mapOf("status" to if (granted) STATUS_GRANTED else STATUS_DENIED)))
             return
         }
         mainHandler.post {

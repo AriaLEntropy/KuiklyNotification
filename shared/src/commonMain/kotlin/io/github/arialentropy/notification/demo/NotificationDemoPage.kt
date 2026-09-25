@@ -72,7 +72,7 @@ internal class NotificationDemoPage : BasePager() {
                     }
                 }
 
-                demoButton("1. 请求权限") {
+                demoButton("1. 请求权限（Android13+ 才弹窗）") {
                     ctx.notification.requestPermission { result ->
                         ctx.appendLog("权限: code=${result.code}, ${result.data?.optString("status")}")
                     }
