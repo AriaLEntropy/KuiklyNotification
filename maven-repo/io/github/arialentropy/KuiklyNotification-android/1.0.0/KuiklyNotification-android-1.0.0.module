@@ -1,0 +1,114 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "url": "../../KuiklyNotification/1.0.0/KuiklyNotification-1.0.0.module",
+    "group": "io.github.arialentropy",
+    "module": "KuiklyNotification",
+    "version": "1.0.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "android",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.21"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "KuiklyNotification-release.aar",
+          "url": "KuiklyNotification-android-1.0.0.aar",
+          "size": 23028,
+          "sha512": "b870eaaa5adaeff7ba2b6dec10560325927dd6ec27d8ffeddce838f0eac866a79ec1b29af1336e07a80103b7176bbb2363b45445b8df41c8ffe73f1bdcacb279",
+          "sha256": "4b853d3edc099a7d60698e67e7a11f5c7c06fe9975ac00ceea2a59e76fbe2f41",
+          "sha1": "515cd58a4c323b1585a56b57d236686c02ba5559",
+          "md5": "4461465afa7bc0b03f5bd105b78650e3"
+        }
+      ]
+    },
+    {
+      "name": "releaseRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "android",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.21"
+          },
+          "excludes": [
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-stdlib-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-common"
+            },
+            {
+              "group": "org.jetbrains.kotlin",
+              "module": "kotlin-test-annotations-common"
+            }
+          ]
+        }
+      ],
+      "files": [
+        {
+          "name": "KuiklyNotification-release.aar",
+          "url": "KuiklyNotification-android-1.0.0.aar",
+          "size": 23028,
+          "sha512": "b870eaaa5adaeff7ba2b6dec10560325927dd6ec27d8ffeddce838f0eac866a79ec1b29af1336e07a80103b7176bbb2363b45445b8df41c8ffe73f1bdcacb279",
+          "sha256": "4b853d3edc099a7d60698e67e7a11f5c7c06fe9975ac00ceea2a59e76fbe2f41",
+          "sha1": "515cd58a4c323b1585a56b57d236686c02ba5559",
+          "md5": "4461465afa7bc0b03f5bd105b78650e3"
+        }
+      ]
+    },
+    {
+      "name": "releaseSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "android",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "files": [
+        {
+          "name": "KuiklyNotification-android-1.0.0-sources.jar",
+          "url": "KuiklyNotification-android-1.0.0-sources.jar",
+          "size": 8563,
+          "sha512": "a477981c02f315d5b6ff932ed682ed5c204b01fdcf8feb9ee43ea050f355f6cd2846d20a5ae2a0c8c29936da0ceb89bcf7a0583d100541cf98451d0c8d91cad8",
+          "sha256": "27074d929fd6c960c2826fd322bd41183e81c2e6b604e3bb191b12d100509c7e",
+          "sha1": "ac19db5ff38361499b4cf57b01c9a09baa1f2283",
+          "md5": "c5d8acacf45966f617b05b84b6bdbc65"
+        }
+      ]
+    }
+  ]
+}

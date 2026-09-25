@@ -1,0 +1,273 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.arialentropy",
+    "module": "KuiklyNotification",
+    "version": "1.0.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "metadataApiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-metadata",
+        "org.jetbrains.kotlin.platform.type": "common"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.21"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "KuiklyNotification-metadata-1.0.0.jar",
+          "url": "KuiklyNotification-1.0.0.jar",
+          "size": 8799,
+          "sha512": "77df1dd029183faea6e76a6092040a670627314c4d970d197f9407c69f4ad90216019f63602a3ae1d4be9e173fa2e636688e05765914d8ed3510a107dffa9be2",
+          "sha256": "4c320ddafe7bdef4818ac7de921e5e78abea6036109bd2c86205ff3f8f91de57",
+          "sha1": "cb214c2a92d517ef4bfeb05c2ef6e943c54a2229",
+          "md5": "f23fb7d23c52bca8ab624664bcdef301"
+        }
+      ]
+    },
+    {
+      "name": "metadataSourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.platform.type": "common"
+      },
+      "files": [
+        {
+          "name": "KuiklyNotification-kotlin-1.0.0-sources.jar",
+          "url": "KuiklyNotification-1.0.0-sources.jar",
+          "size": 8563,
+          "sha512": "a477981c02f315d5b6ff932ed682ed5c204b01fdcf8feb9ee43ea050f355f6cd2846d20a5ae2a0c8c29936da0ceb89bcf7a0583d100541cf98451d0c8d91cad8",
+          "sha256": "27074d929fd6c960c2826fd322bd41183e81c2e6b604e3bb191b12d100509c7e",
+          "sha1": "ac19db5ff38361499b4cf57b01c9a09baa1f2283",
+          "md5": "c5d8acacf45966f617b05b84b6bdbc65"
+        }
+      ]
+    },
+    {
+      "name": "releaseApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "android",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "available-at": {
+        "url": "../../KuiklyNotification-android/1.0.0/KuiklyNotification-android-1.0.0.module",
+        "group": "io.github.arialentropy",
+        "module": "KuiklyNotification-android",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "name": "releaseRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "android",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "available-at": {
+        "url": "../../KuiklyNotification-android/1.0.0/KuiklyNotification-android-1.0.0.module",
+        "group": "io.github.arialentropy",
+        "module": "KuiklyNotification-android",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "name": "releaseSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "android",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "androidJvm"
+      },
+      "available-at": {
+        "url": "../../KuiklyNotification-android/1.0.0/KuiklyNotification-android-1.0.0.module",
+        "group": "io.github.arialentropy",
+        "module": "KuiklyNotification-android",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "name": "iosArm64ApiElements-published",
+      "attributes": {
+        "artifactType": "org.jetbrains.kotlin.klib",
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.native.target": "ios_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../KuiklyNotification-iosarm64/1.0.0/KuiklyNotification-iosarm64-1.0.0.module",
+        "group": "io.github.arialentropy",
+        "module": "KuiklyNotification-iosarm64",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "name": "iosArm64SourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.native.target": "ios_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../KuiklyNotification-iosarm64/1.0.0/KuiklyNotification-iosarm64-1.0.0.module",
+        "group": "io.github.arialentropy",
+        "module": "KuiklyNotification-iosarm64",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "name": "iosArm64MetadataElements-published",
+      "attributes": {
+        "artifactType": "org.jetbrains.kotlin.klib",
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-metadata",
+        "org.jetbrains.kotlin.native.target": "ios_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../KuiklyNotification-iosarm64/1.0.0/KuiklyNotification-iosarm64-1.0.0.module",
+        "group": "io.github.arialentropy",
+        "module": "KuiklyNotification-iosarm64",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "name": "iosSimulatorArm64ApiElements-published",
+      "attributes": {
+        "artifactType": "org.jetbrains.kotlin.klib",
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.native.target": "ios_simulator_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../KuiklyNotification-iossimulatorarm64/1.0.0/KuiklyNotification-iossimulatorarm64-1.0.0.module",
+        "group": "io.github.arialentropy",
+        "module": "KuiklyNotification-iossimulatorarm64",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "name": "iosSimulatorArm64SourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.native.target": "ios_simulator_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../KuiklyNotification-iossimulatorarm64/1.0.0/KuiklyNotification-iossimulatorarm64-1.0.0.module",
+        "group": "io.github.arialentropy",
+        "module": "KuiklyNotification-iossimulatorarm64",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "name": "iosSimulatorArm64MetadataElements-published",
+      "attributes": {
+        "artifactType": "org.jetbrains.kotlin.klib",
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-metadata",
+        "org.jetbrains.kotlin.native.target": "ios_simulator_arm64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../KuiklyNotification-iossimulatorarm64/1.0.0/KuiklyNotification-iossimulatorarm64-1.0.0.module",
+        "group": "io.github.arialentropy",
+        "module": "KuiklyNotification-iossimulatorarm64",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "name": "iosX64ApiElements-published",
+      "attributes": {
+        "artifactType": "org.jetbrains.kotlin.klib",
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.native.target": "ios_x64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../KuiklyNotification-iosx64/1.0.0/KuiklyNotification-iosx64-1.0.0.module",
+        "group": "io.github.arialentropy",
+        "module": "KuiklyNotification-iosx64",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "name": "iosX64SourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.native.target": "ios_x64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../KuiklyNotification-iosx64/1.0.0/KuiklyNotification-iosx64-1.0.0.module",
+        "group": "io.github.arialentropy",
+        "module": "KuiklyNotification-iosx64",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "name": "iosX64MetadataElements-published",
+      "attributes": {
+        "artifactType": "org.jetbrains.kotlin.klib",
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-metadata",
+        "org.jetbrains.kotlin.native.target": "ios_x64",
+        "org.jetbrains.kotlin.platform.type": "native"
+      },
+      "available-at": {
+        "url": "../../KuiklyNotification-iosx64/1.0.0/KuiklyNotification-iosx64-1.0.0.module",
+        "group": "io.github.arialentropy",
+        "module": "KuiklyNotification-iosx64",
+        "version": "1.0.0"
+      }
+    }
+  ]
+}

@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
     id("com.android.library")
+    id("maven-publish")
 }
 
 version = MavenConfig.VERSION
@@ -56,4 +57,22 @@ android {
         minSdk = 21
         targetSdk = 30
     }
+}
+
+/**
+ * 发布配置。
+ *
+ * - iOS 通过 CocoaPods 分发（`pod 'KuiklyNotificationIOS', :git => ..., :tag => ...`），
+ *   Maven 侧只需「元数据 + Android 变体」，因此**不发布 Apple 目标**（也避免在 Windows/Linux 上编译 Apple 目标）。
+ * - POM 元数据统一由 buildSrc 的 `Publishing.applyPom` 填充。
+ */
+publishing {
+    publications.withType<org.gradle.api.publish.maven.MavenPublication>().configureEach {
+        Publishing.applyPom(this, project)
+    }
+    // 根（元数据）publication 的 artifactId 与模块名一致；各目标 publication 由 KMP 自动派生后缀
+    publications.named<org.gradle.api.publish.maven.MavenPublication>("kotlinMultiplatform") {
+        artifactId = MavenConfig.KMP_ARTIFACT_ID
+    }
+    Publishing.registerRepositories(repositories, project)
 }
