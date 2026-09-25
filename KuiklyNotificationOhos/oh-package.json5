@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "KuiklyNotification HarmonyOS native module: cross-platform local notifications for Kuikly.",
   "main": "Index.ets",
-  "author": "AriaLEntropy",
+  "author": {
+    "name": "AriaLEntropy",
+    "email": "AriaLEntropy@users.noreply.github.com"
+  },
   "license": "Apache-2.0",
   "homepage": "https://github.com/AriaLEntropy/KuiklyNotification",
   "repository": "https://github.com/AriaLEntropy/KuiklyNotification",
