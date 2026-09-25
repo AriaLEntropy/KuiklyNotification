@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- 定时/重复通知到点后由该 Receiver 弹出通知，无需 exported -->
+        <receiver
+            android:name="io.github.arialentropy.notification.module.KRNotificationReceiver"
+            android:exported="false" />
+    </application>
+
+</manifest>
