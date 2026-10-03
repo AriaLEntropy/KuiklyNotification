@@ -8,6 +8,7 @@
 [![Android](https://img.shields.io/badge/Android-minSdk%2021-3DDC84.svg)](#平台要求)
 [![iOS](https://img.shields.io/badge/iOS-12%2B-lightgrey.svg)](#平台要求)
 [![HarmonyOS](https://img.shields.io/badge/HarmonyOS-NEXT-black.svg)](#平台要求)
+[![ohpm](https://img.shields.io/badge/ohpm-v1.0.0-5A8DFF.svg)](https://ohpm.openharmony.cn/#/cn/detail/kuikly-notification-ohos)
 
 基于 [Kuikly](https://github.com/Tencent-TDS/KuiklyUI) 的**跨端本地通知组件**（Android / iOS / 鸿蒙）。
 一套 Kotlin 代码，在系统通知栏弹出消息，支持权限、渠道、立即/定时/重复通知、取消、点击回跳、冷启动 payload、角标（iOS）。
@@ -165,7 +166,11 @@ hvigorw assembleHar
 }
 ```
 
-> 未来若发布到 ohpm 公共仓，即可改为 `ohpm install kuikly-notification-ohos`。
+**已上架 ohpm 中心仓**：[`kuikly-notification-ohos`](https://ohpm.openharmony.cn/#/cn/detail/kuikly-notification-ohos)（Apache-2.0）。直接安装：
+
+```bash
+ohpm install kuikly-notification-ohos
+```
 
 #### 配置入口 configure
 

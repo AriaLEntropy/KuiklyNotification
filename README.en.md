@@ -173,8 +173,11 @@ hvigorw assembleHar
 }
 ```
 
-> If it is later published to the ohpm registry, this becomes `ohpm install kuikly-notification-ohos`
->.
+**Published on the ohpm registry**: [`kuikly-notification-ohos`](https://ohpm.openharmony.cn/#/cn/detail/kuikly-notification-ohos) (Apache-2.0). Install directly:
+
+```bash
+ohpm install kuikly-notification-ohos
+```
 
 #### Configure
 
